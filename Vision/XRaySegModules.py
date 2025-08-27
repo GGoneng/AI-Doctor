@@ -14,12 +14,13 @@ class XRayDataset(Dataset):
         self.transform = transform
 
     def __len__(self):
-        return len(self.data)
+        return len(self.img_path)
     
     def __getitem__(self, idx):
+        img_path = self.img_path[idx]
         item = self.label[idx]
 
-        img = Image.open(self.img_path).convert('L')
+        img = Image.open(img_path).convert('L')
 
         mask = Image.new('L', img.size, 0)
         draw = ImageDraw.Draw(mask)
