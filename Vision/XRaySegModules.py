@@ -5,6 +5,8 @@ from torch.utils.data import Dataset, DataLoader
 
 from PIL import Image, ImageDraw
 
+import numpy as np
+
 
 class XRayDataset(Dataset):
     def __init__(self, img_path, json_list, transform=None):
@@ -20,19 +22,24 @@ class XRayDataset(Dataset):
         item = self.label[idx]
 
         img = Image.open(img_path).convert('L')
-
         mask = Image.new('L', img.size, 0)
         draw = ImageDraw.Draw(mask)
 
         for shape in item["shapes"]:
             points = [tuple(point) for point in shape["points"]]
             draw.polygon(points, fill=1)
+        
+        img = np.array(img)
+        mask = np.array(mask)
 
         if self.transform:
-            img = self.transform(img)
-            mask = self.transform(mask)
+            augment = self.transform(image=img, mask=mask)
+            img = augment["image"]
+            mask = augment["mask"]
 
         return img, mask
+
+
 
 class Conv(nn.Module):
     def __init__(self, in_ch, out_ch):
@@ -82,13 +89,15 @@ class OriginUNet(nn.Module):
 
         self.output = nn.Conv2d(64, out_ch, 1)
 
+        self.dropout = nn.Dropout2D(0.2)
+
     def forward(self, input):
         in1 = self.encoder1(input)
         in2 = self.encoder2(self.maxpool(in1))
         in3 = self.encoder3(self.maxpool(in2))
         in4 = self.encoder4(self.maxpool(in3))
 
-        bn = self.bottleneck(self.maxpool(in4))
+        bn = self.bottleneck(self.dropout(self.maxpool(in4)))
 
         out1 = self.decoder1(bn, in4)
         out2 = self.decoder2(out1, in3)
@@ -98,3 +107,4 @@ class OriginUNet(nn.Module):
         final_output = self.output(out4)
 
         return final_output
+    
