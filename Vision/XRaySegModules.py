@@ -136,9 +136,9 @@ def multiclass_dice_loss(pred, target, smooth=1):
         intersection = (pred_c * target_c).sum(dim=(1, 2))  # Element-wise multiplication
         union = pred_c.sum(dim=(1, 2)) + target_c.sum(dim=(1, 2))  # Sum of all pixels
         
-        dice += (2. * intersection + smooth) / (union + smooth)  # Per-class Dice score
+        dice += ((2. * intersection + smooth) / (union + smooth)).mean()   # Per-class Dice score
 
-    return 1 - dice.mean() / num_classes  # Average Dice Loss across classes
+    return 1 - dice / num_classes  # Average Dice Loss across classes
 
 
 def dice_coefficient(pred, target):
