@@ -110,7 +110,7 @@ valDL = DataLoader(valDS, batch_size=BATCH_SIZE)
 
 EPOCH = 300 
 DEVICE = "cuda" if torch.cuda.is_available() else "cpu"
-LR = 1e-2
+LR = 3e-3
 
 num_classes = 5
 
