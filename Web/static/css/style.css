@@ -1,0 +1,194 @@
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@100..900&display=swap');
+
+/* .noto-sans-kr {
+    font-family: "Noto Sans KR", sans-serif;
+    font-optical-sizing: auto;
+    font-weight: 300;
+    font-style: normal;
+} */
+
+
+html, body {
+    height: 100%;
+    margin: 0;
+    padding: 0;
+    overflow: hidden;
+}
+
+.divider {
+  border: none;
+  height: 1px;
+  background-color: #ddd; /* 회색 구분선 */
+  margin: 8px 0; /* 위아래 간격 */
+}
+
+
+/* Display 설정 */
+
+.flex {
+    display: flex;
+}
+
+.flex-col {
+    flex-direction: column;
+}
+
+.flex-row {
+    flex-direction: row;
+}
+
+.hidden {
+    display: none;
+}
+
+/* Position 설정 */
+
+.absolute {
+    position: absolute;
+}
+
+.relative {
+    position: relative;
+}
+
+.fixed {
+    position: fixed;
+}
+
+.bottom-0 {
+    bottom: 0;
+}
+
+.left-200 {
+    left: 200px;
+}
+
+/* 크기 설정 */
+
+.max-h {
+    max-height: 100%;
+}
+
+.max-w {
+    max-width: 100%;
+}
+
+.h-80 {
+    height: 80px;
+}
+
+.h-50 {
+    height: 50px;
+}
+
+.h-40 {
+    height: 40px;
+}
+
+.vh-85 {
+    height: 85vh;
+}
+
+.w-95{
+    width: 95%;
+}
+
+.w-70 {
+    width: 70%;
+}
+
+.w-600 {
+    width: 600px;
+}
+
+.resize-none {
+    resize: none;
+}
+
+/* 정렬 설정 */
+
+.align-center {
+    align-items: center;
+}
+
+.text-center {
+    text-align: center;
+}
+
+.justify-center {
+    justify-content: center;
+}
+
+/* border 설정 */
+
+.border-none {
+    border: none;
+    outline: none;
+}
+
+.background-none {
+    background: none;
+}
+
+/* padding, margin 설정 */
+
+.pd-textarea {
+    box-sizing: border-box;
+    padding-top: 10px;
+    padding-left: 5px;
+    line-height: 1.0;
+}
+
+.mg-0 {
+    margin: 0;
+}
+
+.pd-0 {
+    padding: 0;
+}
+
+.pd-10 {
+    padding: 10px;
+}
+
+.mg-left-5 {
+    margin-left: 5px;
+}
+
+.mg-left-10 {
+    margin-left: 10px;
+}
+
+.mg-bt-30 {
+    margin-bottom: 30px;
+}
+
+.mg-tp-30p {
+    margin-top: 30%;
+}
+
+/* font size 설정 */
+
+.input-font {
+    font-size: 15px;
+}
+
+.menu-font {
+    font-size: 15px;
+}
+
+/* 색상 설정 */
+
+.bg-tp {
+    background-color: transparent;
+}
+
+/* 기타 설정 */
+
+.overflow-hd {
+    overflow: hidden;
+}
+
+.z-50 {
+    z-index: 50;
+}
