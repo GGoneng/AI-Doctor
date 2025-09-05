@@ -1,0 +1,44 @@
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@100..900&display=swap');
+
+/* .noto-sans-kr {
+    font-family: "Noto Sans KR", sans-serif;
+    font-optical-sizing: auto;
+    font-weight: 300;
+    font-style: normal;
+} */
+
+:root {
+    --tw-gradient-from: rgb(152 145 139 / .1)
+    --tw-gradient-to: rgb(255 255 255 / .35)
+    --tw-gradient-stop: var(--tw-gradient-from), var(--tw-gradient-to)
+}
+
+
+.hidden {
+    display: none;
+}
+
+.flex {
+    display: flex;
+}
+
+.flex-col {
+    flex-direction: column;
+}
+
+.p-lr {
+    padding-left: 1.5rem;
+    padding-right: 1.5rem;
+}
+
+.mb {
+    margin-bottom: 260px;
+}
+
+.p-1 {
+    padding: .375rem;
+}
+
+.bg-gradient-to-b{
+    background-image: linear-gradient(to bottom, var(--tw-gradient-stops))
+}
