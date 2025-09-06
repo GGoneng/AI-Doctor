@@ -39,18 +39,17 @@ import albumentations as A
 
 from torchmetrics.segmentation import DiceScore
 
+import gdown
 from functools import reduce
 
 from XRaySegModules import *
 
-
-
 # 데이터 경로 설정
-TRAIN_DATA_DIR = r"F:/Stomach_X-ray/Pediatric_Abdominal_X-ray/Training/Source_Data"
-TRAIN_LABEL_DIR = r"F:/Stomach_X-ray/Pediatric_Abdominal_X-ray/Training/Labeling_Data"
+TRAIN_DATA_DIR = "../Pediatric_Abdominal_X-ray/Training/Source_Data"
+TRAIN_LABEL_DIR = "../Pediatric_Abdominal_X-ray/Training/Labeling_Data"
 
-VAL_DATA_DIR = r"F:/Stomach_X-ray/Pediatric_Abdominal_X-ray/Validation/Source_Data"
-VAL_LABEL_DIR = r"F:/Stomach_X-ray/Pediatric_Abdominal_X-ray/Validation/Labeling_Data"
+VAL_DATA_DIR = "../Pediatric_Abdominal_X-ray/Validation/Source_Data"
+VAL_LABEL_DIR = "../Pediatric_Abdominal_X-ray/Validation/Labeling_Data"
 
 
 # Training 데이터 준비
