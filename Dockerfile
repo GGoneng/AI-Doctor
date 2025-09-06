@@ -6,3 +6,6 @@ RUN git clone https://github.com/GGoneng/AI-Doctor.git /app
 
 # 프로젝트 패키지 설치
 RUN pip install --no-cache-dir -r /app/requirements.txt
+
+# 컨테이너 종료 방지
+CMD ["sleep", "infinity"]
