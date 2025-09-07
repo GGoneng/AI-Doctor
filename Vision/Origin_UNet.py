@@ -61,7 +61,7 @@ for folder in os.listdir(TRAIN_LABEL_DIR)[:5]:
     folder_list.append(os.path.join(TRAIN_LABEL_DIR, folder))
 
 for dir in folder_list:
-    for file_name in os.listdir(dir)[:300]:
+    for file_name in os.listdir(dir):
         label_file_list.append(os.path.join(dir, file_name))
 
 for file in label_file_list:
@@ -77,7 +77,7 @@ for folder in os.listdir(VAL_LABEL_DIR)[:5]:
     val_folder_list.append(os.path.join(VAL_LABEL_DIR, folder))
 
 for dir in val_folder_list:
-    for file_name in os.listdir(dir)[:100]:
+    for file_name in os.listdir(dir):
         val_label_file_list.append(os.path.join(dir, file_name))
 
 for file in val_label_file_list:
@@ -98,7 +98,7 @@ transform = A.Compose([
     ])
 
 
-BATCH_SIZE = 8
+BATCH_SIZE = 32
 
 trainDS = XRayDataset(train_file_list, label_list, transform)
 trainDL = DataLoader(trainDS, batch_size=BATCH_SIZE)
