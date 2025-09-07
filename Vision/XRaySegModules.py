@@ -162,7 +162,7 @@ class CustomWeightedLoss(nn.Module):
     def __init__(self, device):
         super().__init__()
         self.device = device
-        self.class_weights = torch.tensor([0.1, 1.5, 1.5, 1.5, 1.5], dtype=torch.float32, device=self.device)
+        self.class_weights = torch.tensor([0.1, 1.0, 1.0, 1.0, 1.0], dtype=torch.float32, device=self.device)
         self.CELoss = nn.CrossEntropyLoss(weight=self.class_weights)
 
     def forward(self, pred, target):
@@ -173,7 +173,7 @@ class CustomWeightedLoss(nn.Module):
 
         dice_loss = multiclass_dice_loss(pred, target_onehot)
 
-        return ce_loss + 5 * dice_loss
+        return ce_loss + 2 * dice_loss
     
 
 # 모델 Test 함수
