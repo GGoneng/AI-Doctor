@@ -93,7 +93,7 @@ transform = A.Compose([
     ])
 
 
-BATCH_SIZE = 16
+BATCH_SIZE = 8
 
 trainDS = XRayDataset(train_file_list, label_list, transform)
 trainDL = DataLoader(trainDS, batch_size=BATCH_SIZE)
