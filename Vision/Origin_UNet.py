@@ -56,7 +56,7 @@ for folder in os.listdir(TRAIN_LABEL_DIR)[:5]:
     folder_list.append(os.path.join(TRAIN_LABEL_DIR, folder))
 
 for dir in folder_list:
-    for file_name in os.listdir(dir):
+    for file_name in os.listdir(dir)[:1000]:
         label_file_list.append(os.path.join(dir, file_name))
 
 for file in label_file_list:
@@ -72,7 +72,7 @@ for folder in os.listdir(VAL_LABEL_DIR)[:5]:
     val_folder_list.append(os.path.join(VAL_LABEL_DIR, folder))
 
 for dir in val_folder_list:
-    for file_name in os.listdir(dir):
+    for file_name in os.listdir(dir)[:1000]:
         val_label_file_list.append(os.path.join(dir, file_name))
 
 for file in val_label_file_list:
@@ -93,7 +93,7 @@ transform = A.Compose([
     ])
 
 
-BATCH_SIZE = 16
+BATCH_SIZE = 32
 
 trainDS = XRayDataset(train_file_list, label_list, transform)
 trainDL = DataLoader(trainDS, batch_size=BATCH_SIZE)
@@ -104,7 +104,7 @@ valDL = DataLoader(valDS, batch_size=BATCH_SIZE)
 
 EPOCH = 300 
 DEVICE = "cuda" if torch.cuda.is_available() else "cpu"
-LR = 3e-3
+LR = 1e-3
 
 num_classes = 5
 
