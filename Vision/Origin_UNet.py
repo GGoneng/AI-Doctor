@@ -114,7 +114,7 @@ loss_fn = CustomWeightedLoss(device=DEVICE)
 
 optimizer = optim.AdamW(model.parameters(), lr=LR)
 
-scheduler = lr_scheduler.ReduceLROnPlateau(optimizer, mode="min", patience=10)
+scheduler = lr_scheduler.ReduceLROnPlateau(optimizer, mode="min", patience=3)
 
 
 loss, score = training(model=model, trainDL=trainDL, valDL=valDL, optimizer=optimizer, 

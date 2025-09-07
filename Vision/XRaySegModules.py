@@ -116,15 +116,6 @@ class OriginUNet(nn.Module):
 
 
 def multiclass_dice_loss(pred, target, smooth=1):
-    """
-    Computes Dice Loss for multi-class segmentation.
-    Args:
-        pred: Tensor of predictions (batch_size, C, H, W).
-        target: One-hot encoded ground truth (batch_size, C, H, W).
-        smooth: Smoothing factor.
-    Returns:
-        Scalar Dice Loss.
-    """
     pred = F.softmax(pred, dim=1)  # Convert logits to probabilities
     num_classes = pred.shape[1]  # Number of classes (C)
     dice = 0  # Initialize Dice loss accumulator
@@ -178,7 +169,7 @@ class CustomWeightedLoss(nn.Module):
 
         dice_loss = multiclass_dice_loss(pred, target_onehot)
 
-        return ce_loss + dice_loss
+        return ce_loss + 5 * dice_loss
     
 
 # 모델 Test 함수
