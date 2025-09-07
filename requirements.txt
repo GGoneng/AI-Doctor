@@ -7,3 +7,4 @@ torchinfo==1.8.0
 torchmetrics==1.8.1
 sympy==1.13.3
 gdown==5.2.0
+albumentationsx==2.0.10

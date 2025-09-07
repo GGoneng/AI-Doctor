@@ -33,13 +33,8 @@ import torch.optim.lr_scheduler as lr_scheduler
 
 from torch.utils.data import DataLoader
 
-from torchvision.datasets import ImageFolder
-from torchvision.transforms import v2
 import albumentations as A
 
-from torchmetrics.segmentation import DiceScore
-
-import gdown
 from functools import reduce
 
 from XRaySegModules import *
