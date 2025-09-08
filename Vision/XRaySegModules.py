@@ -52,10 +52,8 @@ class Conv(nn.Module):
         super().__init__()
         self.conv = nn.Sequential(
             nn.Conv2d(in_ch, out_ch, 3, padding=1),
-            nn.BatchNorm2d(out_ch),
             nn.ReLU(),
             nn.Conv2d(out_ch, out_ch, 3, padding=1),
-            nn.BatchNorm2d(out_ch),
             nn.ReLU()
         )
     
@@ -67,8 +65,6 @@ class Expand(nn.Module):
         super().__init__()
         self.up = nn.Sequential(
             nn.ConvTranspose2d(in_ch, out_ch, 2, stride=2),
-            nn.BatchNorm2d(out_ch),
-            nn.ReLU()
         )
         self.conv = Conv(in_ch, out_ch)
 
@@ -162,7 +158,7 @@ class CustomWeightedLoss(nn.Module):
     def __init__(self, device):
         super().__init__()
         self.device = device
-        self.class_weights = torch.tensor([0.1, 1.0, 1.0, 1.0, 1.0], dtype=torch.float32, device=self.device)
+        self.class_weights = torch.tensor([0.1, 2.0, 2.0, 2.0, 2.0], dtype=torch.float32, device=self.device)
         self.CELoss = nn.CrossEntropyLoss(weight=self.class_weights)
 
     def forward(self, pred, target):

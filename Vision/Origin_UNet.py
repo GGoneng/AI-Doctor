@@ -40,11 +40,11 @@ from functools import reduce
 from XRaySegModules import *
 
 # 데이터 경로 설정
-TRAIN_DATA_DIR = "../Pediatric_Abdominal_X-ray/Training/Source_Data"
-TRAIN_LABEL_DIR = "../Pediatric_Abdominal_X-ray/Training/Labeling_Data"
+TRAIN_DATA_DIR = "F:/Stomach_X-ray/Pediatric_Abdominal_X-ray/Training/Source_Data"
+TRAIN_LABEL_DIR = "F:/Stomach_X-ray/Pediatric_Abdominal_X-ray/Training/Labeling_Data"
 
-VAL_DATA_DIR = "../Pediatric_Abdominal_X-ray/Validation/Source_Data"
-VAL_LABEL_DIR = "../Pediatric_Abdominal_X-ray/Validation/Labeling_Data"
+VAL_DATA_DIR = "F:/Stomach_X-ray/Pediatric_Abdominal_X-ray/Validation/Source_Data"
+VAL_LABEL_DIR = "F:/Stomach_X-ray/Pediatric_Abdominal_X-ray/Validation/Labeling_Data"
 
 
 # Training 데이터 준비
@@ -56,7 +56,7 @@ for folder in os.listdir(TRAIN_LABEL_DIR)[:5]:
     folder_list.append(os.path.join(TRAIN_LABEL_DIR, folder))
 
 for dir in folder_list:
-    for file_name in os.listdir(dir)[:1000]:
+    for file_name in os.listdir(dir)[:50]:
         label_file_list.append(os.path.join(dir, file_name))
 
 for file in label_file_list:
@@ -72,7 +72,7 @@ for folder in os.listdir(VAL_LABEL_DIR)[:5]:
     val_folder_list.append(os.path.join(VAL_LABEL_DIR, folder))
 
 for dir in val_folder_list:
-    for file_name in os.listdir(dir)[:1000]:
+    for file_name in os.listdir(dir)[:10]:
         val_label_file_list.append(os.path.join(dir, file_name))
 
 for file in val_label_file_list:
@@ -96,7 +96,7 @@ transform = A.Compose([
 BATCH_SIZE = 8
 
 trainDS = XRayDataset(train_file_list, label_list, transform)
-trainDL = DataLoader(trainDS, batch_size=BATCH_SIZE)
+trainDL = DataLoader(trainDS, batch_size=BATCH_SIZE, shuffle=True)
 
 valDS = XRayDataset(val_file_list, val_label_list, transform)
 valDL = DataLoader(valDS, batch_size=BATCH_SIZE)
@@ -104,7 +104,7 @@ valDL = DataLoader(valDS, batch_size=BATCH_SIZE)
 
 EPOCH = 300 
 DEVICE = "cuda" if torch.cuda.is_available() else "cpu"
-LR = 1e-3
+LR = 1e-4
 
 num_classes = 5
 
