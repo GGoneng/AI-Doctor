@@ -136,7 +136,7 @@ def multiclass_dice_loss(pred, target, smooth=1):
     return 1 - dice / num_classes  # Average Dice Loss across classes
 
 
-def dice_coefficient(pred, target):
+def dice_coefficient(pred, target, smooth=1):
     num_classes = pred.shape[1]
     pred = torch.argmax(F.softmax(pred, dim=1), dim=1)  # Get class predictions
     
@@ -151,7 +151,7 @@ def dice_coefficient(pred, target):
     for i in range(num_classes):
         intersection = (pred_onehot[:, i] * target_onehot[:, i]).sum()
         union = pred_onehot[:, i].sum() + target_onehot[:, i].sum()
-        dice = (2 * intersection) / (union + 1e-6)
+        dice = (2 * intersection + smooth) / (union + smooth)
         dice_scores.append(dice)
 
     return torch.mean(torch.stack(dice_scores)).item()
