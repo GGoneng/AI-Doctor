@@ -138,19 +138,16 @@ def multiclass_dice_loss(pred, target, smooth=1):
 
 def dice_coefficient(pred, target, smooth=1):
     num_classes = pred.shape[1]
-    pred = torch.argmax(F.softmax(pred, dim=1), dim=1)  # Get class predictions
+    pred = F.softmax(pred, dim=1)  # Get class predictions
     
-    pred_onehot = F.one_hot(pred, num_classes=num_classes)         # [B, H, W, C]
     target_onehot = F.one_hot(target, num_classes=num_classes)     # [B, H, W, C]
-
-    pred_onehot = pred_onehot.permute(0, 3, 1, 2).float()          # [B, C, H, W]
     target_onehot = target_onehot.permute(0, 3, 1, 2).float()
     
     dice_scores = []
     
     for i in range(num_classes):
-        intersection = (pred_onehot[:, i] * target_onehot[:, i]).sum()
-        union = pred_onehot[:, i].sum() + target_onehot[:, i].sum()
+        intersection = (pred[:, i] * target_onehot[:, i]).sum()
+        union = pred[:, i].sum() + target_onehot[:, i].sum()
         dice = (2 * intersection + smooth) / (union + smooth)
         dice_scores.append(dice)
 
