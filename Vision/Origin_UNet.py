@@ -56,7 +56,7 @@ for folder in os.listdir(TRAIN_LABEL_DIR)[:5]:
     folder_list.append(os.path.join(TRAIN_LABEL_DIR, folder))
 
 for dir in folder_list:
-    for file_name in os.listdir(dir)[:500]:
+    for file_name in os.listdir(dir)[:1000]:
         label_file_list.append(os.path.join(dir, file_name))
 
 for file in label_file_list:
@@ -72,7 +72,7 @@ for folder in os.listdir(VAL_LABEL_DIR)[:5]:
     val_folder_list.append(os.path.join(VAL_LABEL_DIR, folder))
 
 for dir in val_folder_list:
-    for file_name in os.listdir(dir)[:100]:
+    for file_name in os.listdir(dir)[:300]:
         val_label_file_list.append(os.path.join(dir, file_name))
 
 for file in val_label_file_list:
