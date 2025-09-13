@@ -52,8 +52,10 @@ class Conv(nn.Module):
         super().__init__()
         self.conv = nn.Sequential(
             nn.Conv2d(in_ch, out_ch, 3, padding=1),
+            nn.BatchNorm2d(out_ch),
             nn.ReLU(),
             nn.Conv2d(out_ch, out_ch, 3, padding=1),
+            nn.BatchNorm2d(out_ch),
             nn.ReLU()
         )
     
@@ -65,6 +67,8 @@ class Expand(nn.Module):
         super().__init__()
         self.up = nn.Sequential(
             nn.ConvTranspose2d(in_ch, out_ch, 2, stride=2),
+            nn.BatchNorm2d(out_ch),
+            nn.ReLU()
         )
         self.conv = Conv(in_ch, out_ch)
 
@@ -116,15 +120,6 @@ class OriginUNet(nn.Module):
 
 
 def multiclass_dice_loss(pred, target, smooth=1):
-    """
-    Computes Dice Loss for multi-class segmentation.
-    Args:
-        pred: Tensor of predictions (batch_size, C, H, W).
-        target: One-hot encoded ground truth (batch_size, C, H, W).
-        smooth: Smoothing factor.
-    Returns:
-        Scalar Dice Loss.
-    """
     pred = F.softmax(pred, dim=1)  # Convert logits to probabilities
     num_classes = pred.shape[1]  # Number of classes (C)
     dice = 0  # Initialize Dice loss accumulator
@@ -141,22 +136,19 @@ def multiclass_dice_loss(pred, target, smooth=1):
     return 1 - dice / num_classes  # Average Dice Loss across classes
 
 
-def dice_coefficient(pred, target):
+def dice_coefficient(pred, target, smooth=1):
     num_classes = pred.shape[1]
-    pred = torch.argmax(F.softmax(pred, dim=1), dim=1)  # Get class predictions
+    pred = F.softmax(pred, dim=1)  # Get class predictions
     
-    pred_onehot = F.one_hot(pred, num_classes=num_classes)         # [B, H, W, C]
     target_onehot = F.one_hot(target, num_classes=num_classes)     # [B, H, W, C]
-
-    pred_onehot = pred_onehot.permute(0, 3, 1, 2).float()          # [B, C, H, W]
     target_onehot = target_onehot.permute(0, 3, 1, 2).float()
     
     dice_scores = []
     
     for i in range(num_classes):
-        intersection = (pred_onehot[:, i] * target_onehot[:, i]).sum()
-        union = pred_onehot[:, i].sum() + target_onehot[:, i].sum()
-        dice = (2 * intersection) / (union + 1e-6)
+        intersection = (pred[:, i] * target_onehot[:, i]).sum()
+        union = pred[:, i].sum() + target_onehot[:, i].sum()
+        dice = (2 * intersection + smooth) / (union + smooth)
         dice_scores.append(dice)
 
     return torch.mean(torch.stack(dice_scores)).item()
@@ -167,7 +159,7 @@ class CustomWeightedLoss(nn.Module):
     def __init__(self, device):
         super().__init__()
         self.device = device
-        self.class_weights = torch.tensor([0.2, 1.0, 1.0, 1.0, 1.0], dtype=torch.float32, device=self.device)
+        self.class_weights = torch.tensor([0.1, 1.0, 1.0, 1.0, 1.0], dtype=torch.float32, device=self.device)
         self.CELoss = nn.CrossEntropyLoss(weight=self.class_weights)
 
     def forward(self, pred, target):
@@ -178,7 +170,7 @@ class CustomWeightedLoss(nn.Module):
 
         dice_loss = multiclass_dice_loss(pred, target_onehot)
 
-        return ce_loss + dice_loss
+        return ce_loss + 2 * dice_loss
     
 
 # 모델 Test 함수
@@ -220,7 +212,7 @@ def training(model, trainDL, valDL, optimizer, epoch,
 
     # Early Stopping을 위한 변수
     BREAK_CNT_LOSS = 0
-    LIMIT_VALUE = 300
+    LIMIT_VALUE = 50
 
     # Loss가 더 낮은 가중치 파일을 저장하기 위하여 Loss 로그를 담을 리스트
     LOSS_HISTORY, SCORE_HISTORY = [[], []], [[], []]
