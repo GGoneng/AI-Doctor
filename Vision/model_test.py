@@ -25,8 +25,8 @@ transform = A.Compose([A.pytorch.ToTensorV2()])
 
 
 # 데이터 불러오기
-img_path = r"F:/Stomach_X-ray/Pediatric_Abdominal_X-ray/Validation/Source_Data/3.Air_Fluid_Level/3_1625.png"
-json_path = r"F:/Stomach_X-ray/Pediatric_Abdominal_X-ray/Validation/Labeling_Data/3.Air_Fluid_Level/3_1625.json"
+img_path = r"F:/Stomach_X-ray/Pediatric_Abdominal_X-ray/Validation/Source_Data/1.Pyloric_Stenosis/1_1816.png"
+json_path = r"F:/Stomach_X-ray/Pediatric_Abdominal_X-ray/Validation/Labeling_Data/1.Pyloric_Stenosis/1_1816.json"
 
 img = Image.open(img_path).convert('L')
 
@@ -36,14 +36,15 @@ with open(json_path, "r", encoding="utf-8") as f:
 mask = Image.new('L', img.size, 0)
 draw = ImageDraw.Draw(mask)
 
-
 for shape in item["shapes"]:
     points = [tuple(point) for point in shape["points"]]
     class_id = shape["class"]
     draw.polygon(points, fill=class_id)
 
+
 img = np.array(img, dtype=np.float32) / 255.0
 mask = np.array(mask, dtype=np.int64)
+
 
 augmented = transform(image=img, mask=mask)
 img_tensor = augmented["image"].unsqueeze(0).to(DEVICE)
@@ -54,12 +55,10 @@ pred = torch.argmax(F.softmax(pred, dim=1), dim=1).cpu()
 
 print(pred.unique())
 
-fig, axes = plt.subplots(1, 2, figsize=(12, 8))
-axes = axes.flatten()
+fig, ax = plt.subplots(figsize=(6, 6))  # Figure + Axes 생성
 
-print(pred.shape, mask_tensor.shape)
-axes[0].imshow(pred.squeeze())
-axes[0].set_title("Prediction")
-axes[1].imshow(mask)
-axes[1].set_title("Mask")
+ax.imshow(img, cmap="gray")  # 배경 이미지
+ax.imshow(pred.squeeze(), cmap="jet", alpha=0.4)  # 예측값 오버레이
+ax.set_title("Prediction Overlay")
+
 plt.show()
