@@ -9,8 +9,12 @@ function App() {
         </div>
       </header>
 
-      <main className="flex"></main>
-      <footer className="flex"></footer>
+      <main className="flex">
+        <div></div>
+      </main>
+      <footer className="flex">
+        <div></div>
+      </footer>
     </div>
   );
 }

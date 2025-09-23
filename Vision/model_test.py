@@ -3,9 +3,7 @@ from XRaySegModules import *
 import torch
 import torch.nn.functional as F
 
-from PIL import Image
-
-import albumentations as A
+from PIL import Imag
 
 import json
 import matplotlib.pyplot as plt
@@ -25,8 +23,8 @@ transform = A.Compose([A.pytorch.ToTensorV2()])
 
 
 # 데이터 불러오기
-img_path = r"F:/Stomach_X-ray/Pediatric_Abdominal_X-ray/Validation/Source_Data/1.Pyloric_Stenosis/1_1816.png"
-json_path = r"F:/Stomach_X-ray/Pediatric_Abdominal_X-ray/Validation/Labeling_Data/1.Pyloric_Stenosis/1_1816.json"
+img_path = r"F:/Stomach_X-ray/Pediatric_Abdominal_X-ray/Validation/Source_Data/1.Pyloric_Stenosis/1_1817.png"
+json_path = r"F:/Stomach_X-ray/Pediatric_Abdominal_X-ray/Validation/Labeling_Data/1.Pyloric_Stenosis/1_1817.json"
 
 img = Image.open(img_path).convert('L')
 
