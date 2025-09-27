@@ -4,7 +4,7 @@ function Banner() {
     return (
         <a href="http://localhost:3000/" className="flex justify-center">
             <span>
-                <img src={logo} alt="AI-Doctor 로고" className="w-30 h-24"></img>
+                <img src={logo} alt="AI-Doctor 로고" className="w-30 h-24 ml-5"></img>
             </span> 
             <div className>
 

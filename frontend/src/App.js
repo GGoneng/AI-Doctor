@@ -1,4 +1,5 @@
 import Header from "./Component/Header";
+import Insert from "./Component/Insert";
 
 function App() {
   return (
@@ -10,7 +11,9 @@ function App() {
       </header>
 
       <main className="flex">
-        <div></div>
+        <div>
+          <Insert />
+        </div>
       </main>
       <footer className="flex">
         <div></div>
