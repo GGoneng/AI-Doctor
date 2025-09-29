@@ -20,8 +20,8 @@
 # [2025-09-02] Loss 구조 변경
 #
 # >> 성능
-# Train Multi-Class Dice Score : 0.898
-# Test Multi-Class Dice Score : 0.883
+# Train Multi-Class Dice Score : 0.898 -> 0.908
+# Val Multi-Class Dice Score : 0.883 -> 0.912
 # -----------------------------------------------------------------------------------
 
 
