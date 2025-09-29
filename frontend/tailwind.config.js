@@ -4,7 +4,11 @@ module.exports = {
     "./src/**/*.{js,jsx,ts,tsx}"
   ],
   theme: {
-    extend: {},
+    extend: {
+      boxShadow: {
+        chat: "inset 0 0 0 1px rgb(227,227,227)"
+      }
+    },
   },
   plugins: [],
 }

@@ -1,5 +1,6 @@
 import Header from "./Component/Header";
 import Insert from "./Component/Insert";
+import Chat from "./Component/Chat";
 
 function App() {
   return (
@@ -10,9 +11,12 @@ function App() {
         </div>
       </header>
 
-      <main className="flex justify-center">
+      <main className="flex flex-col items-center">
         <div>
           <Insert />
+        </div>
+        <div className="">
+          <Chat />
         </div>
       </main>
       <footer className="flex">
