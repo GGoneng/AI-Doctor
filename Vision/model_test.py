@@ -3,12 +3,14 @@ from XRaySegModules import *
 import torch
 import torch.nn.functional as F
 
-from PIL import Imag
+from PIL import Image
+
+import albumentations as A
 
 import json
 import matplotlib.pyplot as plt
 
-WEIGHT_PATH = "./saved_models/best_model_weights.pth"
+WEIGHT_PATH = "./saved_models/best_model_weights2.pth"
 
 num_classes = 5
 DEVICE = "cuda" if torch.cuda.is_available() else "cpu"
