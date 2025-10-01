@@ -1,8 +1,13 @@
+import { useState } from "react";
+
 import Header from "./Component/Header";
 import Insert from "./Component/Insert";
 import Chat from "./Component/Chat";
+import Preview from "./Component/Preview";
 
 function App() {
+  const [file, setFile] = useState(null); 
+
   return (
     <div className="min-h-full h-auto">
       <header className="flex">
@@ -13,15 +18,13 @@ function App() {
 
       <main className="flex flex-col items-center">
         <div>
-          <Insert />
+          <Insert setFile={setFile} />
         </div>
-        <div className="">
+        <div className="flex flex-col">
+          <Preview file={file} />
           <Chat />
         </div>
       </main>
-      <footer className="flex">
-        <div></div>
-      </footer>
     </div>
   );
 }
