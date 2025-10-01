@@ -1,6 +1,6 @@
 import { useRef, useState } from "react";
 
-function Chat({ file }) {
+function Chat() {
     const textareaRef = useRef(null);
     const wrapperRef = useRef(null);
 
