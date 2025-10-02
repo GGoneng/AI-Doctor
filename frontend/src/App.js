@@ -18,11 +18,10 @@ function App() {
 
       <main className="flex flex-col items-center">
         <div>
-          <Insert setFile={setFile} />
+          {file ? (<Preview file={file} setFile={setFile} />) : (<Insert setFile={setFile} />)}        
         </div>
         <div className="flex flex-col">
-          <Preview file={file} />
-          <Chat />
+          <Chat file={file} />
         </div>
       </main>
     </div>

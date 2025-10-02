@@ -1,12 +1,12 @@
 import { useRef, useState } from "react";
 
-function Chat() {
+function Chat({ file }) {
     const textareaRef = useRef(null);
     const wrapperRef = useRef(null);
 
     const [text, setText] = useState("");
 
-    const isDisable = text.trim().length === 0;
+    const isDisable = text.trim().length === 0 && !file;
 
     const handleText = (text) => {
         setText(text);
