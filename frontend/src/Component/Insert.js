@@ -8,7 +8,7 @@ function Insert({ setFile }) {
     };
 
     const handleFile = (file) => {
-        if (file && file.type.startWith("image/")) {
+        if (file && file.type.startsWith("image/")) {
             setFile(file);
         }
     };

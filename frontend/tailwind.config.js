@@ -6,7 +6,8 @@ module.exports = {
   theme: {
     extend: {
       boxShadow: {
-        chat: "inset 0 0 0 1px rgb(227,227,227)"
+        chat: "inset 0 0 0 1px rgb(227,227,227)",
+        preview: "inset 0 0 0 2px rgb(227,227,227)"
       },
     },
   },
