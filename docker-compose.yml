@@ -16,3 +16,15 @@ services:
     environment:
       - CHOKIDAR_USEPOLLING=true
       - CHOKIDAR_INTERVAL=100
+
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    image: minha512/ai-doctor_backend:latest
+    container_name: ai-doctor_backend_service
+    restart: unless-stopped
+    volumes:
+      - ./backend:/back
+    ports:
+      - "8000:8000"
