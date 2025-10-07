@@ -6,7 +6,7 @@ function Banner() {
             <span>
                 <img src={logo} alt="AI-Doctor 로고" className="w-30 h-24 ml-7"></img>
             </span> 
-            <div className>
+            <div>
 
             </div>
         </a>

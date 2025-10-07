@@ -50,7 +50,7 @@ function Insert({ setFile }) {
         <div className="group flex items-center justify-center rounded-2xl bg-indigo-100/20 h-[350px] w-[848px] mt-20 hover:bg-indigo-100/30"
                 onDrop={handleDrop} onDragOver={handleDragOver}>
             <div className="flex flex-col items-center justify-center h-[90%] w-[95%] border-2 border-transparent rounded-2xl group-hover:border-dotted group-hover:rounded-2xl group-hover:border-gray-400 p-4">
-                <h1 className="font-[550] text-4xl">사진으로 진단을 간편하게</h1>
+                <h1 className="font-[550] text-4xl">사진을 드래그해주세요</h1>
                 <div className="mt-10 w-[100%]"></div>
                     <input className="hidden" ref={clickRef} aria-hidden="true" tabIndex="-1" type="file" accept=".jpg,.jpeg,.png,.heic,.heif,.webp,.svg" 
                         onChange={handleFileselect}></input>

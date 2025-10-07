@@ -119,26 +119,9 @@ class OriginUNet(nn.Module):
         return final_output
 
 
-def multiclass_dice_loss(pred, target, smooth=1):
-    pred = F.softmax(pred, dim=1)  # Convert logits to probabilities
-    num_classes = pred.shape[1]  # Number of classes (C)
-    dice = 0  # Initialize Dice loss accumulator
-    
-    for c in range(num_classes):  # Loop through each class
-        pred_c = pred[:, c]  # Predictions for class c
-        target_c = target[:, c]  # Ground truth for class c
-        
-        intersection = (pred_c * target_c).sum(dim=(1, 2))  # Element-wise multiplication
-        union = pred_c.sum(dim=(1, 2)) + target_c.sum(dim=(1, 2))  # Sum of all pixels
-        
-        dice += ((2. * intersection + smooth) / (union + smooth)).mean()   # Per-class Dice score
-
-    return 1 - dice / num_classes  # Average Dice Loss across classes
-
-
 def dice_coefficient(pred, target, smooth=1):
     num_classes = pred.shape[1]
-    pred = F.softmax(pred, dim=1)  # Get class predictions
+    pred = F.softmax(pred, dim=1) 
     
     target_onehot = F.one_hot(target, num_classes=num_classes)     # [B, H, W, C]
     target_onehot = target_onehot.permute(0, 3, 1, 2).float()
@@ -152,6 +135,14 @@ def dice_coefficient(pred, target, smooth=1):
         dice_scores.append(dice)
 
     return torch.mean(torch.stack(dice_scores)).item()
+
+
+def multiclass_dice_loss(pred, target, smooth=1):
+    num_classes = pred.shape[1]
+
+    dice_coef = dice_coefficient(pred, target)
+
+    return 1 - dice_coef / num_classes 
 
 
 
