@@ -1,4 +1,4 @@
-from fastapi import FastAPI
+from fastapi import FastAPI, File, UploadFile
 from fastapi.middleware.cors import CORSMiddleware
 
 app = FastAPI()
@@ -11,6 +11,8 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-@app.get("/")
-def read_root():
-    return {"Hello": "World"}
+@app.post("/upload")
+async def upload_image(file: UploadFile = File(...)):
+    contents = await file.read()
+    print(f"파일 이름 : {file.filename}")
+    return {"filename": file.filename, "message": "이미지 업로드 성공!"}
