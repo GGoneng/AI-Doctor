@@ -8,6 +8,7 @@ import albumentations as A
 
 import numpy as np
 
+import cv2 as cv
 
 class _Conv(nn.Module):
     def __init__(self, in_ch, out_ch):
@@ -82,6 +83,7 @@ class _OriginUNet(nn.Module):
 
 
 def _image_preprocess(img, device="cpu"):
+    img = cv.cvtColor(np.array(img), cv.COLOR_RGB2GRAY)
     transform = A.Compose([A.pytorch.ToTensorV2()])
     
     img = np.array(img, dtype=np.float32) / 255.0

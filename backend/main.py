@@ -5,6 +5,10 @@ import os
 
 from PIL import Image
 
+from io import BytesIO
+
+import numpy as np
+
 from fastapi import FastAPI, File, UploadFile
 from fastapi.middleware.cors import CORSMiddleware
 
@@ -25,12 +29,14 @@ app.add_middleware(
 @app.post("/upload")
 async def upload_image(file: UploadFile = File(...)):
     img = await file.read()
+    img = Image.open(BytesIO(img)).convert("RGB")
+
     num_classes = 5
 
     pred = vision_predict(img=img, num_classes=num_classes, weights=VISION_WEIGHTS_PATH, device=DEVICE)
-    pred_np = pred.cpu().numpy()
+    pred_np = pred.cpu().numpy().astype(np.uint8)
 
-    Image.fromarray(pred_np.astype(np.uint8)).save("result.png")
+    Image.fromarray(pred_np, mode="L").save("result.png")
 
     print(f"파일 이름 : {file.filename}")
     return {"filename": file.filename, "message": "이미지 업로드 성공!"}
