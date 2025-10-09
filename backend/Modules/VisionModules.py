@@ -84,7 +84,9 @@ class _OriginUNet(nn.Module):
 
 def _image_preprocess(img, device="cpu"):
     img = cv.cvtColor(np.array(img), cv.COLOR_RGB2GRAY)
-    transform = A.Compose([A.pytorch.ToTensorV2()])
+    
+    transform = A.Compose([A.Resize(512, 512),
+                           A.pytorch.ToTensorV2()])
     
     img = np.array(img, dtype=np.float32) / 255.0
 
