@@ -1,5 +1,4 @@
 import { useRef } from "react";
-import axios from "axios";
 
 function Insert({ setFile }) {
     const clickRef = useRef(null);

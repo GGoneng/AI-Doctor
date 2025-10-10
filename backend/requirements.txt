@@ -1,8 +1,8 @@
 python-multipart
 fastapi
 uvicorn[standard]
-torch
-torchvision
 albumentations
 numpy
 opencv-python
+torch
+torchvision
