@@ -2,19 +2,29 @@ import json
 import torch
 import random
 
-from transformers import AutoTokenizer, AutoModelForCausalLM
+from transformers import AutoTokenizer, AutoModelForCausalLM, BitsAndBytesConfig
 
-# 모델과 토크나이저 로드
-model_name = "openai/gpt-oss-20b"
+
+model_name = "upstage/SOLAR-10.7B-Instruct-v1.0"
 tokenizer = AutoTokenizer.from_pretrained(model_name)
+
+quantization_config = BitsAndBytesConfig(
+    load_in_8bit=True,        
+    llm_int8_threshold=6.0,   
+    llm_int8_has_fp16_weight=False, 
+    bnb_4bit_compute_dtype=torch.float16
+)
+
 model = AutoModelForCausalLM.from_pretrained(
     model_name,
-    device_map="auto"
+    device_map="auto",
+    quantization_config=quantization_config
 )
 
 # 지식 기반 instruction (system 역할)
 system_instruction = """
-당신은 임상 지식을 갖춘 유능하고 신뢰할 수 있는 한국어 기반 의료 어시스턴트입니다.
+당신은 임상 지식을 갖춘 유능하고 신뢰할 수 있는 **한국어 의료 어시스턴트**입니다.
+영어로 답하지 말고, 반드시 **모든 설명과 추론 과정을 한국어로만 작성**하세요.
 사용자의 질문에 대해 정확하고 신중한 임상 추론을 바탕으로 진단 가능성을 제시해 주세요.
 환자의 연령, 증상, 검사 결과, 통증 부위 등 모든 단서를 종합적으로 고려하여 추론 과정과 진단명을 제시해야 합니다.
 의학적으로 정확한 용어를 사용하되, 필요하면 일반인이 이해하기 쉬운 용어도 병행해 설명하세요.
@@ -74,7 +84,7 @@ system_instruction = """
 
 # LoRA용 데이터셋 생성
 dataset = []
-num_samples = 1000  # 생성할 샘플 수
+num_samples = 4  # 생성할 샘플 수
 
 diseases = ["유문협착증", "장폐색", "공기-액체 수준", "변비"]
 
@@ -111,8 +121,7 @@ for disease in diseases:
         
         # 새 토큰만 디코딩
         output_text = tokenizer.decode(
-            generated[0][inputs["input_ids"].shape[-1]:],
-            skip_special_tokens=True
+            generated[0][inputs["input_ids"].shape[-1]:]
         )
 
         dataset.append({
