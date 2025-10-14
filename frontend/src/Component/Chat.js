@@ -51,7 +51,9 @@ function Chat({ file }) {
         await axios.post("http://localhost:8000/upload", form, {
             headers: {"Content-Type": "multipart/form-data"}
         })
-        .then(response => console.log("서버 응답 : ", response.data))
+        .then(response => console.log("서버 응답 : ", response.data)
+            , setText("")
+            , setTimeout(() => handleScroll(), 0))
         .catch(err => console.error("업로드 실패 : ", err))
     };
 

@@ -35,10 +35,16 @@ async def upload_image(file: Optional[UploadFile] = File(None),
     img = await file.read()
     img = Image.open(BytesIO(img)).convert("RGB")
 
+    img_np = np.array(img, dtype=np.float32)
     num_classes = 5
 
     pred = vision_predict(img=img, num_classes=num_classes, weights=VISION_WEIGHTS_PATH, device=DEVICE)
     pred_np = pred.cpu().numpy()
+
+    symptom_list = ["증상 없음", "유문협착증", "기복증", "공기액체층", "변비"]
+    symptom_class = max(np.unique(pred_np))
+
+    symptom = symptom_list[symptom_class]
 
     palette = np.array([
         [0, 0, 0],        # class 0 → black
@@ -48,13 +54,13 @@ async def upload_image(file: Optional[UploadFile] = File(None),
         [255, 255, 0],    # class 4 → yellow
     ], dtype=np.uint8)
 
-    # (3) RGB 이미지로 변환
-    color_mask = palette[pred_np]  # (H, W, 3) 형태로 변환
+    color_mask = palette[pred_np] 
+    color_mask = color_mask.astype(np.float32)
 
-    # (4) 이미지 저장
-    Image.fromarray(color_mask).save("result.png")
+    blend_ratio = 0.3  # 투명도 (0.0~1.0)
+    overlay = (img_np * (1 - blend_ratio) + color_mask * blend_ratio).astype(np.uint8)
 
-    # Image.fromarray(pred_np, mode="L").save("result.png")
+    Image.fromarray(overlay).save("result.png")
 
     print(f"파일 이름 : {file.filename}")
     return {"filename": file.filename, "prompt": text, "message": "이미지 업로드 성공!"}
