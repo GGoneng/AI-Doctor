@@ -1,6 +1,6 @@
 import logo from "../Data/logo.png";
 
-function Banner() {
+const Banner = () => {
     return (
         <a href="http://localhost:3000/" className="flex justify-center">
             <span>

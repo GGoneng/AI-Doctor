@@ -1,6 +1,6 @@
 import { useRef } from "react";
 
-function Insert({ setFile }) {
+const Insert = ({ setFile }) => {
     const clickRef = useRef(null);
 
     const currentClick = () => {
@@ -31,19 +31,6 @@ function Insert({ setFile }) {
     const handleFileselect = (e) => {
         handleFile(e.target.files[0]);
     };
-
-    // const uploadBackend = async (file) => {
-    //     const form = new FormData();
-    //     form.append("file", file);
-
-    //     await axios.post("http://localhost:8000/upload", form, {
-    //         headers: {"Content-Type": "multipart/form-data"}
-    //     })
-    //     .then(response => console.log("서버 응답 : ", response.data))
-    //     .catch(err => console.error("업로드 실패 : ", err))
-    // };
-
-
 
     return (
         <div className="group flex items-center justify-center rounded-2xl bg-indigo-100/20 h-[350px] w-[848px] mt-20 hover:bg-indigo-100/30"

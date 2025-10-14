@@ -1,6 +1,6 @@
 import Banner from "./Banner";
 
-function Header() {
+const Header = () => {
     return (
         <div>
             <Banner />

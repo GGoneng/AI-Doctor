@@ -4,9 +4,11 @@ import Header from "./Component/Header";
 import Insert from "./Component/Insert";
 import Chat from "./Component/Chat";
 import Preview from "./Component/Preview";
+import Loading from "./Component/Loading";
 
-function App() {
-  const [file, setFile] = useState(null); 
+const App = () => {
+  const [file, setFile] = useState(null);
+  const [loading, setLoading] = useState(false); 
 
   return (
     <div className="min-h-full h-auto">
@@ -18,10 +20,16 @@ function App() {
 
       <main className="flex flex-col items-center">
         <div>
-          {file ? (<Preview file={file} setFile={setFile} />) : (<Insert setFile={setFile} />)}        
+          {loading ? (
+            <Loading loading={loading} />
+          ) : file ? (
+            <Preview file={file} setFile={setFile} />
+          ) : (
+            <Insert setFile={setFile} />
+          )}
         </div>
         <div className="flex flex-col">
-          <Chat file={file} />
+          <Chat file={file} setFile={setFile} setLoading={setLoading} />
         </div>
       </main>
     </div>

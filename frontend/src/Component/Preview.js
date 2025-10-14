@@ -1,4 +1,4 @@
-function Preview({ file, setFile }) {    
+const Preview = ({ file, setFile }) => {    
     
     if (!file) {
         return null;
