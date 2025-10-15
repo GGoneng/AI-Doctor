@@ -43,6 +43,33 @@ async def upload_image(file: Optional[UploadFile] = File(None),
     id = str(uuid4())
 
     img = await file.read()
+
+    if (len(img) == 0):
+        r.set(id, pickle.dumps({"text": text}))
+    
+    elif (text == None):
+        r.set(id, pickle.dumps({"img": img}))
+    
+    else:
+        r.set(id, pickle.dumps({"text": text, "img": img}))
+
+    # if file != None:
+    #     img = await file.read()
+
+    # r.set(id, pickle.dumps({"img": img, "text": text}))
+
+    # img = Image.open(BytesIO(img)).convert("RGB")
+
+
+
+    # print(f"파일 이름 : {file.filename}")
+    return {"session_id": id, "file": file.filename, "prompt": text, "message": "업로드 성공!"}
+
+
+@app.get("/predictVision/{id}")
+def predict_vision(id: str):
+    data = pickle.loads(r.get(id))
+    img = data["img"]
     img = Image.open(BytesIO(img)).convert("RGB")
 
     img_np = np.array(img, dtype=np.float32)
@@ -72,18 +99,9 @@ async def upload_image(file: Optional[UploadFile] = File(None),
     blend_ratio = 0.3  # 투명도 (0.0~1.0)
     pred_img = (img_np * (1 - blend_ratio) + color_mask * blend_ratio).astype(np.uint8)
 
-    r.set(id, pickle.dumps({"img": img, "text": text}))
+    data["vision_pred"] = pred_img
+    r.set(id, pickle.dumps(data))
 
     Image.fromarray(pred_img).save("result.png")
 
-    data = pickle.loads(r.get(id))
-
-    save_img = data["img"]
-    save_text = data["text"]
-
-    print(f"파일 이름 : {file.filename}")
-    return {"session_id": id, "prompt": save_text, "message": "이미지 업로드 성공!"}
-
-
-# @app.post("/result")
-# 
+    return {"vision_result": pred_img}

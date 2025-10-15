@@ -9,7 +9,7 @@ services:
     container_name: ai-doctor_backend_service
     restart: unless-stopped
     volumes:
-      - ./backend:/app
+      - ./backend:/back
     ports:
       - "8000:8000"
     depends_on:
