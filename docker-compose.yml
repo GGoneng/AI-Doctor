@@ -9,9 +9,13 @@ services:
     container_name: ai-doctor_backend_service
     restart: unless-stopped
     volumes:
-      - ./backend:/back
+      - ./backend:/app
     ports:
       - "8000:8000"
+    depends_on:
+      - redis
+    environment:
+      - REDIS_HOST=redis
 
   frontend:
     build:
@@ -29,4 +33,7 @@ services:
       - CHOKIDAR_USEPOLLING=true
       - CHOKIDAR_INTERVAL=100
 
-
+  redis:
+    image: redis:latest
+    ports:
+      - "6379:6379"

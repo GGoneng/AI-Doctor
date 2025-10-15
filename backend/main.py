@@ -12,7 +12,13 @@ import numpy as np
 from fastapi import FastAPI, File, UploadFile, Form
 from fastapi.middleware.cors import CORSMiddleware
 
+from uuid import uuid4
+
+import redis
+import pickle
+
 from typing import Optional
+
 
 DEVICE = "cuda" if torch.cuda.is_available() else "cpu"
 BASE_PATH = os.path.dirname(os.path.abspath(__file__))
@@ -28,10 +34,14 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+r = redis.Redis(host=os.getenv("REDIS_HOST", "localhost"), port=6379, db=0)
+
 @app.post("/upload")
 async def upload_image(file: Optional[UploadFile] = File(None), 
                        text: Optional[str] = Form(None)):
     
+    id = str(uuid4())
+
     img = await file.read()
     img = Image.open(BytesIO(img)).convert("RGB")
 
@@ -46,6 +56,8 @@ async def upload_image(file: Optional[UploadFile] = File(None),
 
     symptom = symptom_list[symptom_class]
 
+    print(symptom)
+
     palette = np.array([
         [0, 0, 0],        # class 0 → black
         [255, 0, 0],      # class 1 → red
@@ -58,9 +70,20 @@ async def upload_image(file: Optional[UploadFile] = File(None),
     color_mask = color_mask.astype(np.float32)
 
     blend_ratio = 0.3  # 투명도 (0.0~1.0)
-    overlay = (img_np * (1 - blend_ratio) + color_mask * blend_ratio).astype(np.uint8)
+    pred_img = (img_np * (1 - blend_ratio) + color_mask * blend_ratio).astype(np.uint8)
 
-    Image.fromarray(overlay).save("result.png")
+    r.set(id, pickle.dumps({"img": img, "text": text}))
+
+    Image.fromarray(pred_img).save("result.png")
+
+    data = pickle.loads(r.get(id))
+
+    save_img = data["img"]
+    save_text = data["text"]
 
     print(f"파일 이름 : {file.filename}")
-    return {"filename": file.filename, "prompt": text, "message": "이미지 업로드 성공!"}
+    return {"session_id": id, "prompt": save_text, "message": "이미지 업로드 성공!"}
+
+
+# @app.post("/result")
+# 
