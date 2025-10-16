@@ -1,7 +1,7 @@
 import { useRef, useState } from "react";
 import axios from "axios";
 
-const Chat = ({ file, setFile, setLoading }) => {
+const Chat = ({ file, setFile, setLoading, setID }) => {
     const textareaRef = useRef(null);
     const wrapperRef = useRef(null);
 
@@ -63,6 +63,7 @@ const Chat = ({ file, setFile, setLoading }) => {
             setFile(null);
             setTimeout(() => handleScroll(), 0);
             setLoading(false);
+            setID(response.data.id)
         }
     )
         .catch(err => console.error("업로드 실패 : ", err))

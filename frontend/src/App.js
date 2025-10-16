@@ -9,6 +9,7 @@ import Loading from "./Component/Loading";
 const App = () => {
   const [file, setFile] = useState(null);
   const [loading, setLoading] = useState(false); 
+  const [id, setID] = useState(null);
 
   return (
     <div className="min-h-full h-auto">
@@ -29,7 +30,7 @@ const App = () => {
           )}
         </div>
         <div className="flex flex-col">
-          <Chat file={file} setFile={setFile} setLoading={setLoading} />
+          <Chat file={file} setFile={setFile} setLoading={setLoading} setID={setID}/>
         </div>
       </main>
     </div>

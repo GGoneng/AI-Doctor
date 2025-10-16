@@ -14,6 +14,7 @@ from fastapi.middleware.cors import CORSMiddleware
 
 from uuid import uuid4
 
+import base64
 import redis
 import pickle
 
@@ -53,20 +54,10 @@ async def upload_image(file: Optional[UploadFile] = File(None),
     else:
         r.set(id, pickle.dumps({"text": text, "img": img}))
 
-    # if file != None:
-    #     img = await file.read()
-
-    # r.set(id, pickle.dumps({"img": img, "text": text}))
-
-    # img = Image.open(BytesIO(img)).convert("RGB")
+    return {"id": id, "file": file.filename, "prompt": text, "message": "업로드 성공!"}
 
 
-
-    # print(f"파일 이름 : {file.filename}")
-    return {"session_id": id, "file": file.filename, "prompt": text, "message": "업로드 성공!"}
-
-
-@app.get("/predictVision/{id}")
+@app.post("/predictVision")
 def predict_vision(id: str):
     data = pickle.loads(r.get(id))
     img = data["img"]
@@ -99,9 +90,13 @@ def predict_vision(id: str):
     blend_ratio = 0.3  # 투명도 (0.0~1.0)
     pred_img = (img_np * (1 - blend_ratio) + color_mask * blend_ratio).astype(np.uint8)
 
-    data["vision_pred"] = pred_img
+    buffer = BytesIO()
+    Image.fromarray(pred_img).save(buffer, format="PNG")
+    base64_img = base64.b64encode(buffer.getvalue()).decode("utf-8")
+
+    data["vision_pred"] = base64_img
     r.set(id, pickle.dumps(data))
 
     Image.fromarray(pred_img).save("result.png")
 
-    return {"vision_result": pred_img}
+    return {"id": id, "vision_result": "redis 저장 성공"}
