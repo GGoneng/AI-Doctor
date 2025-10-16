@@ -30,7 +30,7 @@ const App = () => {
           )}
         </div>
         <div className="flex flex-col">
-          <Chat file={file} setFile={setFile} setLoading={setLoading} setID={setID}/>
+          <Chat file={file} setFile={setFile} setLoading={setLoading} id={id} setID={setID}/>
         </div>
       </main>
     </div>

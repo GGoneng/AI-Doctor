@@ -35,31 +35,58 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-r = redis.Redis(host=os.getenv("REDIS_HOST", "localhost"), port=6379, db=0)
+vision_memory = redis.Redis(host=os.getenv("REDIS_HOST", "localhost"), port=6379, db=0)
+llm_memory = redis.Redis(host=os.getenv("REDIS_HOST", "localhost"), port=6379, db=1)
 
 @app.post("/upload")
-async def upload_image(file: Optional[UploadFile] = File(None), 
+async def upload_image(id: Optional[str] = Form(None),
+                       file: Optional[UploadFile] = File(None), 
                        text: Optional[str] = Form(None)):
     
-    id = str(uuid4())
+    if id is None:
+        id = str(uuid4())
 
+    vision_data = vision_memory.get(id)
+    llm_data = llm_memory.get(id)
+    
+    if vision_data:
+        vision_data = pickle.loads(vision_data)
+    else:
+        vision_data = {}
+
+    if llm_data:
+        llm_data = pickle.loads(llm_data)
+    else:
+        llm_data = {}
+
+
+    if "imgs" not in vision_data:
+        vision_data["imgs"] = []
+    
+    if "texts" not in llm_data:
+        llm_data["texts"] = []
+    
     img = await file.read()
 
     if (len(img) == 0):
-        r.set(id, pickle.dumps({"text": text}))
+        llm_data["texts"].append(text)
     
-    elif (text == None):
-        r.set(id, pickle.dumps({"img": img}))
+    elif not text:
+        vision_data["imgs"].append(img)
     
     else:
-        r.set(id, pickle.dumps({"text": text, "img": img}))
+        vision_data["imgs"].append(img)
+        llm_data["texts"].append(text)
+
+    vision_memory.set(id, pickle.dumps(vision_data))
+    llm_memory.set(id, pickle.dumps(llm_data))
 
     return {"id": id, "file": file.filename, "prompt": text, "message": "업로드 성공!"}
 
 
 @app.post("/predictVision")
 def predict_vision(id: str):
-    data = pickle.loads(r.get(id))
+    data = pickle.loads(vision_memory.get(id))
     img = data["img"]
     img = Image.open(BytesIO(img)).convert("RGB")
 
@@ -95,7 +122,7 @@ def predict_vision(id: str):
     base64_img = base64.b64encode(buffer.getvalue()).decode("utf-8")
 
     data["vision_pred"] = base64_img
-    r.set(id, pickle.dumps(data))
+    vision_memory.set(id, pickle.dumps(data))
 
     Image.fromarray(pred_img).save("result.png")
 
