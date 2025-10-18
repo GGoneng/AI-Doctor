@@ -39,6 +39,57 @@ app.add_middleware(
 vision_memory = redis.Redis(host=os.getenv("REDIS_HOST", "localhost"), port=6379, db=0)
 llm_memory = redis.Redis(host=os.getenv("REDIS_HOST", "localhost"), port=6379, db=1)
 
+gpu_lock = threading.Lock()
+
+def predict_vision(id: str):
+    with gpu_lock:
+        data = pickle.loads(vision_memory.get(id))
+        img = data["inputs"][-1]
+        img = Image.open(BytesIO(img)).convert("RGB")
+
+        img_np = np.array(img, dtype=np.float32)
+        num_classes = 5
+
+        pred = vision_predict(img=img, num_classes=num_classes, weights=VISION_WEIGHTS_PATH, device=DEVICE)
+        pred_np = pred.cpu().numpy()
+
+        symptom_list = ["증상 없음", "유문협착증", "기복증", "공기액체층", "변비"]
+        symptom_class = max(np.unique(pred_np))
+
+        symptom = symptom_list[symptom_class]
+
+        print(symptom)
+
+        palette = np.array([
+            [0, 0, 0],        # class 0 → black
+            [255, 0, 0],      # class 1 → red
+            [0, 255, 0],      # class 2 → green
+            [0, 0, 255],      # class 3 → blue
+            [255, 255, 0],    # class 4 → yellow
+        ], dtype=np.uint8)
+
+        color_mask = palette[pred_np] 
+        color_mask = color_mask.astype(np.float32)
+
+        blend_ratio = 0.3  # 투명도 (0.0~1.0)
+        pred_img = (img_np * (1 - blend_ratio) + color_mask * blend_ratio).astype(np.uint8)
+
+        buffer = BytesIO()
+        Image.fromarray(pred_img).save(buffer, format="PNG")
+        base64_img = base64.b64encode(buffer.getvalue()).decode("utf-8")
+
+        data["outputs"].append(base64_img)
+        vision_memory.set(id, pickle.dumps(data))
+
+        result_path = os.path.join(BASE_PATH, "result.png")
+        Image.fromarray(pred_img).save(result_path)
+
+        return {"id": id, "vision_result": "redis 저장 성공"}
+
+def predict_llm(id: str):
+    return None
+
+
 @app.post("/upload")
 async def upload_image(id: Optional[str] = Form(None),
                        file: Optional[UploadFile] = File(None), 
@@ -98,53 +149,15 @@ async def upload_image(id: Optional[str] = Form(None),
 
     return {"id": id, "file": file.filename, "prompt": text, "message": "업로드 성공!"}
 
+@app.get("/visionOutputs/{id}")
+def get_vision_output(id: str):
+    data = vision_memory.get(id)
+    if not data:
+        return {"outputs": []}
+    
+    img = pickle.loads(data)
+    outputs = img.get("outputs", [])
 
-gpu_lock = threading.Lock()
-
-def predict_vision(id: str):
-    with gpu_lock:
-        data = pickle.loads(vision_memory.get(id))
-        img = data["inputs"][-1]
-        img = Image.open(BytesIO(img)).convert("RGB")
-
-        img_np = np.array(img, dtype=np.float32)
-        num_classes = 5
-
-        pred = vision_predict(img=img, num_classes=num_classes, weights=VISION_WEIGHTS_PATH, device=DEVICE)
-        pred_np = pred.cpu().numpy()
-
-        symptom_list = ["증상 없음", "유문협착증", "기복증", "공기액체층", "변비"]
-        symptom_class = max(np.unique(pred_np))
-
-        symptom = symptom_list[symptom_class]
-
-        print(symptom)
-
-        palette = np.array([
-            [0, 0, 0],        # class 0 → black
-            [255, 0, 0],      # class 1 → red
-            [0, 255, 0],      # class 2 → green
-            [0, 0, 255],      # class 3 → blue
-            [255, 255, 0],    # class 4 → yellow
-        ], dtype=np.uint8)
-
-        color_mask = palette[pred_np] 
-        color_mask = color_mask.astype(np.float32)
-
-        blend_ratio = 0.3  # 투명도 (0.0~1.0)
-        pred_img = (img_np * (1 - blend_ratio) + color_mask * blend_ratio).astype(np.uint8)
-
-        buffer = BytesIO()
-        Image.fromarray(pred_img).save(buffer, format="PNG")
-        base64_img = base64.b64encode(buffer.getvalue()).decode("utf-8")
-
-        data["outputs"].append(base64_img)
-        vision_memory.set(id, pickle.dumps(data))
-
-        result_path = os.path.join(BASE_PATH, "result.png")
-        Image.fromarray(pred_img).save(result_path)
-
-        return {"id": id, "vision_result": "redis 저장 성공"}
-
-def predict_llm(id: str):
-    return None
+    latest_output = outputs[-1] if outputs else None
+    
+    return {"outputs": latest_output}

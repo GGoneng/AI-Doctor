@@ -5,11 +5,13 @@ import Insert from "./Component/Insert";
 import Chat from "./Component/Chat";
 import Preview from "./Component/Preview";
 import Loading from "./Component/Loading";
+import Prediction from "./Component/Prediction";
 
 const App = () => {
   const [file, setFile] = useState(null);
   const [loading, setLoading] = useState(false); 
   const [id, setID] = useState(null);
+  const [prediction, setPrediction] = useState(null);
 
   return (
     <div className="min-h-full h-auto">
@@ -21,7 +23,9 @@ const App = () => {
 
       <main className="flex flex-col items-center">
         <div>
-          {loading ? (
+          {prediction ? (
+            <Prediction id={id} />
+          ) : loading ? (
             <Loading loading={loading} />
           ) : file ? (
             <Preview file={file} setFile={setFile} />

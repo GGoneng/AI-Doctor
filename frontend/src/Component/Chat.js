@@ -58,7 +58,7 @@ const Chat = ({ file, setFile, setLoading, id, setID }) => {
             form.append("id", id);
         }
 
-        await axios.post("http://localhost:8000/upload", form, {
+        await axios.post(`http://localhost:8000/upload`, form, {
             headers: {"Content-Type": "multipart/form-data"}
         })
         .then(response => {
