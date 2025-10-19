@@ -23,10 +23,10 @@ const App = () => {
 
       <main className="flex flex-col items-center">
         <div>
-          {prediction ? (
-            <Prediction id={id} />
-          ) : loading ? (
-            <Loading loading={loading} />
+          {loading ? (
+            <Loading />
+          ) : id ? (
+            <Prediction id={id} setLoading={setLoading} />
           ) : file ? (
             <Preview file={file} setFile={setFile} />
           ) : (

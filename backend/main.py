@@ -18,6 +18,7 @@ import base64
 import redis
 import pickle
 import threading
+import time
 
 from typing import Optional
 
@@ -79,6 +80,7 @@ def predict_vision(id: str):
         base64_img = base64.b64encode(buffer.getvalue()).decode("utf-8")
 
         data["outputs"].append(base64_img)
+
         vision_memory.set(id, pickle.dumps(data))
 
         result_path = os.path.join(BASE_PATH, "result.png")
@@ -151,13 +153,14 @@ async def upload_image(id: Optional[str] = Form(None),
 
 @app.get("/visionOutputs/{id}")
 def get_vision_output(id: str):
-    data = vision_memory.get(id)
+    time.sleep(3)
+    data = pickle.loads(vision_memory.get(id))
+
     if not data:
         return {"outputs": []}
-    
-    img = pickle.loads(data)
-    outputs = img.get("outputs", [])
+
+    outputs = data.get("outputs", [])
 
     latest_output = outputs[-1] if outputs else None
     
-    return {"outputs": latest_output}
+    return {"outputs": [latest_output] if latest_output else []}
