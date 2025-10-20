@@ -11,7 +11,6 @@ const App = () => {
   const [file, setFile] = useState(null);
   const [loading, setLoading] = useState(false); 
   const [id, setID] = useState(null);
-  const [prediction, setPrediction] = useState(null);
 
   return (
     <div className="min-h-full h-auto">
@@ -23,14 +22,10 @@ const App = () => {
 
       <main className="flex flex-col items-center">
         <div>
-          {loading ? (
-            <Loading />
-          ) : id ? (
-            <Prediction id={id} setLoading={setLoading} />
-          ) : file ? (
-            <Preview file={file} setFile={setFile} />
-          ) : (
-            <Insert setFile={setFile} />
+          {loading && <Loading />}
+          {id && <Prediction id={id} setLoading={setLoading} />}
+          {!id && !loading && (
+            file ? <Preview file={file} setFile={setFile} /> : <Insert setFile={setFile} />
           )}
         </div>
         <div className="flex flex-col">

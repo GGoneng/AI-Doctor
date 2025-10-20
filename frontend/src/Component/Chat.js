@@ -40,7 +40,7 @@ const Chat = ({ file, setFile, setLoading, id, setID }) => {
 
     const uploadBackend = async (id, file, text) => {
         const form = new FormData();
-        setLoading(true);
+        
 
         if (file) {
             form.append("file", file);
@@ -57,7 +57,7 @@ const Chat = ({ file, setFile, setLoading, id, setID }) => {
         if (id) {
             form.append("id", id);
         }
-
+        setLoading(true);
         await axios.post("http://localhost:8000/upload", form, {
             headers: {"Content-Type": "multipart/form-data"}
         })
@@ -71,11 +71,14 @@ const Chat = ({ file, setFile, setLoading, id, setID }) => {
             setText("");
             setFile(null);
             setTimeout(() => handleScroll(), 0);
+            setLoading(false);
         }
     )
-        .catch(err => console.error("업로드 실패 : ", err))
-        .finally(() => { setLoading(false); })
-    };
+        .catch(err => {
+            console.error("업로드 실패 : ", err);
+            setLoading(false);
+        }
+    )};
 
 
 

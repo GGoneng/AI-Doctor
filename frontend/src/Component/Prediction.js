@@ -8,21 +8,20 @@ const Prediction = ({ id, setLoading }) => {
         if (!id) return;
 
         let intervalId;
-        // setLoading(true);
+        setLoading(true);
+
         const visionPredict = async () => {
+            
             await axios.get(`http://localhost:8000/visionOutputs/${id}`)
+            
             .then(response => {
-                console.log(response);
+                console.log("prediction 서버 응답 : ", response);
                 const output = response.data.outputs;
-                if (Array.isArray(output)) {
-                    setOutputs(output); 
-                    console.log("Prediction 서버 응답 : ", output);
-                    if (output) {
-                        setLoading(false);
-                        clearInterval(intervalId);
-                    } else {
-                        setLoading(true);
-                    }
+
+                if (output && Array.isArray(output) && output.length > 0) {
+                    setOutputs(output);
+                    setLoading(false);
+                    clearInterval(intervalId);
                 }
             })
             .catch(err => {
