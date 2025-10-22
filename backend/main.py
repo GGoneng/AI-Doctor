@@ -89,6 +89,9 @@ def predict_vision(id: str):
         return {"id": id, "vision_result": "redis 저장 성공"}
 
 def predict_llm(id: str):
+    with gpu_lock:
+        data = pickle.loads(llm_memory.get(id))
+        
     return None
 
 
