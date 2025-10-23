@@ -1,17 +1,18 @@
 from langchain.prompts import PromptTemplate
+from langchain.chains import LLMChain
 from langchain_community.llms import VLLM
 
-MODEL_NAME = "snuh/hari-q3"
+_MODEL_NAME = "snuh/hari-q3"
 
-llm = VLLM(
-    model=MODEL_NAME,
+_llm = VLLM(
+    model=_MODEL_NAME,
     max_new_tokens=1024,
     top_k=10,
     top_p=0.95,
     temperature=0.8
 )
 
-prompts = {
+_prompts = {
 "xray" : PromptTemplate(
 input_variables=["symptom"],
 template="""
@@ -47,3 +48,4 @@ template="""
     """    
 )}
 
+# def predict_llm()

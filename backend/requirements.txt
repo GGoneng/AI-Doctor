@@ -4,6 +4,8 @@ uvicorn[standard]
 albumentations
 numpy
 opencv-python
-torch
-torchvision
 redis
+huggingface_hub
+langchain
+langchain-community
+vllm

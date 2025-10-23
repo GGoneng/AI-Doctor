@@ -1,8 +1,8 @@
-FROM python:3.10
+FROM pytorch/pytorch:2.8.0-cuda12.6-cudnn9-runtime
 
 WORKDIR '/back'
 
-RUN apt-get update && apt-get install -y libgl1
+RUN apt-get update && apt-get install -y libgl1 libglib2.0-0
 
 COPY requirements.txt .
 

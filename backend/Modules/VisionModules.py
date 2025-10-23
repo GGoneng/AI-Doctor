@@ -1,17 +1,49 @@
+# ----------------------------------------------------------
+# Modules
+# ----------------------------------------------------------
+
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
 
 from PIL import Image
-
 import albumentations as A
-
 import numpy as np
-
 import cv2 as cv
 
+from io import BytesIO
+import base64
+import threading
+import pickle
+import os
+
+import redis
+
+from Modules.TypeVariable import *
+
+# ----------------------------------------------------------
+# Internal Variables (do not call externally)
+# ----------------------------------------------------------
+
+_BASE_PATH = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+_VISION_WEIGHTS_PATH = os.path.join(_BASE_PATH, "Weights", "vision_weights.pth")
+_DEVICE = "cuda" if torch.cuda.is_available() else "cpu"
+
+_gpu_lock = threading.Lock()
+
+# ----------------------------------------------------------
+# External Variables (can be called from outside)
+# ----------------------------------------------------------
+
+
+# ----------------------------------------------------------
+# Internal Classes (do not call externally)
+# ----------------------------------------------------------
+
 class _Conv(nn.Module):
-    def __init__(self, in_ch, out_ch):
+    conv: nn.Sequential
+
+    def __init__(self, in_ch: int, out_ch: int) -> None:
         super().__init__()
         self.conv = nn.Sequential(
             nn.Conv2d(in_ch, out_ch, 3, padding=1),
@@ -22,11 +54,14 @@ class _Conv(nn.Module):
             nn.ReLU()
         )
     
-    def forward(self, input):
+    def forward(self, input: torch.Tensor) -> torch.Tensor:
         return self.conv(input)
     
 class _Expand(nn.Module):
-    def __init__(self, in_ch, out_ch):
+    up: nn.Sequential
+    conv: _Conv
+
+    def __init__(self, in_ch: int, out_ch: int) -> None:
         super().__init__()
         self.up = nn.Sequential(
             nn.ConvTranspose2d(in_ch, out_ch, 2, stride=2),
@@ -35,7 +70,7 @@ class _Expand(nn.Module):
         )
         self.conv = _Conv(in_ch, out_ch)
 
-    def forward(self, input, skip):
+    def forward(self, input: torch.Tensor, skip: torch.Tensor) -> torch.Tensor:
         x = self.up(input)
         x = torch.cat((x, skip), dim=1)
         x = self.conv(x)
@@ -43,7 +78,23 @@ class _Expand(nn.Module):
         return x
 
 class _OriginUNet(nn.Module):
-    def __init__(self, num_classes):
+    encoder1: _Conv
+    encoder2: _Conv
+    encoder3: _Conv
+    encoder4: _Conv
+
+    maxpool: nn.MaxPool2d
+    bottleneck: _Conv
+
+    decoder1: _Expand
+    decoder2: _Expand
+    decoder3: _Expand
+    decoder4: _Expand
+
+    output: nn.Conv2d
+    dropout: nn.Dropout2d
+
+    def __init__(self, num_classes: int) -> None:
         super().__init__()
         
         self.encoder1 = _Conv(1, 64)
@@ -64,7 +115,7 @@ class _OriginUNet(nn.Module):
 
         self.dropout = nn.Dropout2d(0.2)
 
-    def forward(self, input):
+    def forward(self, input: torch.Tensor) -> torch.Tensor:
         in1 = self.encoder1(input)
         in2 = self.encoder2(self.maxpool(in1))
         in3 = self.encoder3(self.maxpool(in2))
@@ -81,9 +132,17 @@ class _OriginUNet(nn.Module):
 
         return final_output
 
+# ----------------------------------------------------------
+# External Classes (can be called from outside)
+# ----------------------------------------------------------
 
-def _image_preprocess(img, device="cpu"):
-    img = cv.cvtColor(np.array(img), cv.COLOR_RGB2GRAY)
+
+# ----------------------------------------------------------
+# Internal Functions (do not call externally)
+# ----------------------------------------------------------
+
+def _image_preprocess(img: np.array, device: DeviceType ="cpu") -> torch.Tensor:
+    img = cv.cvtColor(img, cv.COLOR_RGB2GRAY)
     
     transform = A.Compose([A.Resize(512, 512),
                            A.pytorch.ToTensorV2()])
@@ -95,7 +154,8 @@ def _image_preprocess(img, device="cpu"):
 
     return img_tensor
 
-def vision_predict(img, num_classes, weights, device="cpu"):
+def _model_infer(img: np.array, num_classes: int, 
+                 weights: str, device: DeviceType="cpu") -> torch.Tensor:
     img_tensor = _image_preprocess(img, device)
 
     model = _OriginUNet(num_classes=num_classes).to(device)
@@ -107,3 +167,53 @@ def vision_predict(img, num_classes, weights, device="cpu"):
     pred = torch.argmax(F.softmax(pred, dim=1), dim=1).squeeze()
 
     return pred
+
+# ----------------------------------------------------------
+# External Functions (can be called from outside)
+# ----------------------------------------------------------
+
+def predict_vision(id: str, memory: redis.Redis) -> ResponseType:
+    with _gpu_lock:
+        data = pickle.loads(memory.get(id))
+        img = data["inputs"][-1]
+        img = Image.open(BytesIO(img)).convert("RGB")
+
+        img_np = np.array(img, dtype=np.float32)
+        num_classes = 5
+
+        pred = _model_infer(img=img_np, num_classes=num_classes, weights=_VISION_WEIGHTS_PATH, device=_DEVICE)
+        pred_np = pred.cpu().numpy()
+
+        symptom_list = ["증상 없음", "유문협착증", "기복증", "공기액체층", "변비"]
+        symptom_class = max(np.unique(pred_np))
+
+        symptom = symptom_list[symptom_class]
+
+        print(symptom)
+
+        palette = np.array([
+            [0, 0, 0],        # class 0 → black
+            [255, 0, 0],      # class 1 → red
+            [0, 255, 0],      # class 2 → green
+            [0, 0, 255],      # class 3 → blue
+            [255, 255, 0],    # class 4 → yellow
+        ], dtype=np.uint8)
+
+        color_mask = palette[pred_np] 
+        color_mask = color_mask.astype(np.float32)
+
+        blend_ratio = 0.3  # 투명도 (0.0~1.0)
+        pred_img = (img_np * (1 - blend_ratio) + color_mask * blend_ratio).astype(np.uint8)
+
+        buffer = BytesIO()
+        Image.fromarray(pred_img).save(buffer, format="PNG")
+        base64_img = base64.b64encode(buffer.getvalue()).decode("utf-8")
+
+        data["outputs"].append(base64_img)
+
+        memory.set(id, pickle.dumps(data))
+
+        result_path = os.path.join(_BASE_PATH, "result.png")
+        Image.fromarray(pred_img).save(result_path)
+
+        return {"id": id, "vision_result": "redis 저장 성공"}
