@@ -1,5 +1,9 @@
+# ----------------------------------------------------------
+# Modules
+# ----------------------------------------------------------
+
 from Modules.VisionModules import predict_vision
-# from Modules.LLMModules import *
+from Modules.LLMModules import predict_llm
 from Modules.TypeVariable import *
 
 import torch
@@ -14,7 +18,12 @@ import redis
 import pickle
 import time
 
-from typing import Optional, Dict, List, Any
+from typing import Optional, Dict, Any
+
+
+# ----------------------------------------------------------
+# Variables
+# ----------------------------------------------------------
 
 DEVICE = "cuda" if torch.cuda.is_available() else "cpu"
 BASE_PATH = os.path.dirname(os.path.abspath(__file__))
@@ -34,12 +43,16 @@ vision_memory = redis.Redis(host=os.getenv("REDIS_HOST", "localhost"), port=6379
 llm_memory = redis.Redis(host=os.getenv("REDIS_HOST", "localhost"), port=6379, db=1)
 
 
+# ----------------------------------------------------------
+# API Endpoints
+# ----------------------------------------------------------
+
 @app.post("/upload")
-async def upload_image(id: Optional[str] = Form(None),
-                       file: Optional[UploadFile] = File(None), 
-                       text: Optional[str] = Form(None),
-                       background_tasks: BackgroundTasks = None) -> Dict[str, Any]:
-    
+async def upload(id: Optional[str] = Form(None),
+                file: Optional[UploadFile] = File(None), 
+                text: Optional[str] = Form(None),
+                background_tasks: BackgroundTasks = None) -> Dict[str, Any]:
+
     if id is None:
         id = str(uuid4())
 
@@ -68,25 +81,28 @@ async def upload_image(id: Optional[str] = Form(None),
 
     if "outputs" not in llm_data:
         llm_data["outputs"] = []
+
+    if "symptom" not in llm_data:
+        llm_data["symptom"] = []
     
 
     img = await file.read()
 
     if (len(img) == 0):
         llm_data["inputs"].append(text)
-        # background_tasks.add_task(predict_llm, id)
+        background_tasks.add_task(predict_llm, id, llm_memory)
     
     elif not text:
         vision_data["inputs"].append(img)
-        background_tasks.add_task(predict_vision, id, vision_memory)
+        background_tasks.add_task(predict_vision, id, vision_memory, llm_memory)
     
     else:
         vision_data["inputs"].append(img)
         llm_data["inputs"].append(text)
 
         # Vision 모델의 추론 우선 (속도, 증상 체크)
-        background_tasks.add_task(predict_vision, id, vision_memory)
-        # prediction_queue.append(("llm", id))
+        background_tasks.add_task(predict_vision, id, vision_memory, llm_memory)
+        background_tasks.add_task(predict_llm, id, llm_memory)
 
     vision_memory.set(id, pickle.dumps(vision_data))
     llm_memory.set(id, pickle.dumps(llm_data))

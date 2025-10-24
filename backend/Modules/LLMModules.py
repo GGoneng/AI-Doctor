@@ -1,6 +1,17 @@
-from langchain.prompts import PromptTemplate
-from langchain.chains import LLMChain
-from langchain_community.llms import VLLM
+# ----------------------------------------------------------
+# Modules
+# ----------------------------------------------------------
+
+from langchain_core.prompts.prompt import PromptTemplate
+from langchain_community.llms.vllm import VLLM
+
+import redis
+import pickle
+
+
+# ----------------------------------------------------------
+# Internal Variables (do not call externally)
+# ----------------------------------------------------------
 
 _MODEL_NAME = "snuh/hari-q3"
 
@@ -48,4 +59,34 @@ template="""
     """    
 )}
 
-# def predict_llm()
+
+# ----------------------------------------------------------
+# External Variables (can be called from outside)
+# ----------------------------------------------------------
+
+
+# ----------------------------------------------------------
+# Internal Classes (do not call externally)
+# ----------------------------------------------------------
+
+
+# ----------------------------------------------------------
+# External Classes (can be called from outside)
+# ----------------------------------------------------------
+
+
+# ----------------------------------------------------------
+# Internal Functions (do not call externally)
+# ----------------------------------------------------------
+
+
+# ----------------------------------------------------------
+# External Functions (can be called from outside)
+# ----------------------------------------------------------
+
+def predict_llm(id: str, llm_memory: redis.Redis):
+    llm_data = pickle.loads(llm_memory.get(id))
+    question = llm_data["inputs"][-1]
+    symptom = llm_data["symptom"][-1]
+
+    print(question, symptom)
