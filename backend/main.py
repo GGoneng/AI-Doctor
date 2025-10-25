@@ -119,6 +119,6 @@ def get_vision_output(id: str) -> VisionOutputType:
 
     outputs = data.get("outputs", [])
 
-    latest_output = outputs[-1] if outputs else None
+    latest_output = outputs[-1] if outputs else ""
     
-    return {"outputs": [latest_output]}
+    return {"outputs": [latest_output or ""]}
