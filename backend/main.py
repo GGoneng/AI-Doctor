@@ -102,7 +102,7 @@ async def upload(id: Optional[str] = Form(None),
 
         # Vision 모델의 추론 우선 (속도, 증상 체크)
         background_tasks.add_task(predict_vision, id, vision_memory, llm_memory)
-        background_tasks.add_task(predict_llm, id, llm_memory)
+        # background_tasks.add_task(predict_llm, id, llm_memory)
 
     vision_memory.set(id, pickle.dumps(vision_data))
     llm_memory.set(id, pickle.dumps(llm_data))
@@ -122,3 +122,11 @@ def get_vision_output(id: str) -> VisionOutputType:
     latest_output = outputs[-1] if outputs else ""
     
     return {"outputs": [latest_output or ""]}
+
+@app.get("/llmOutputs/{id}")
+def get_llm_output(id: str):
+    time.sleep(3)
+    data = pickle.loads(llm_memory.get(id))
+
+    if not data:
+        return {"outputs": []}

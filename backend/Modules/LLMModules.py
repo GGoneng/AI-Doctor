@@ -1,6 +1,7 @@
 # ----------------------------------------------------------
 # Modules
 # ----------------------------------------------------------
+from Modules.TypeVariable import *
 
 from langchain_core.prompts.prompt import PromptTemplate
 from langchain_community.llms.vllm import VLLM
@@ -84,9 +85,28 @@ template="""
 # External Functions (can be called from outside)
 # ----------------------------------------------------------
 
-def predict_llm(id: str, llm_memory: redis.Redis):
+def predict_llm(id: str, llm_memory: redis.Redis) -> ResponseType:
     llm_data = pickle.loads(llm_memory.get(id))
     question = llm_data["inputs"][-1] if llm_data["inputs"] else None
     symptom = llm_data["symptom"][-1] if llm_data["symptom"] else None
 
     print(question, symptom)
+
+    if symptom:
+        prompt = _prompts["xray"]
+        input_data = {"symptom": symptom}
+    
+    elif question:
+        prompt = _prompts["question"]
+        input_data = {"question": question}
+    
+    else:
+        return {"id": id, "llm_result": "Text Data가 없습니다."}
+    
+    chain = prompt | _llm
+    result = chain.invoke(input_data)
+
+    llm_data["outputs"].append(result)
+    llm_memory.set(id, pickle.dumps(llm_data))
+
+    return {"id": id, "llm_result": "LLM 모델 추론 성공!"}
