@@ -3,7 +3,7 @@
 # ----------------------------------------------------------
 
 from Modules.VisionModules import predict_vision
-from Modules.LLMModules import predict_llm
+# from Modules.LLMModules import predict_llm
 from Modules.TypeVariable import *
 
 import torch
@@ -130,3 +130,10 @@ def get_llm_output(id: str):
 
     if not data:
         return {"outputs": []}
+    
+    outputs = data.get("outputs", [])
+
+    latest_output = outputs[-1] if outputs else ""
+
+    return {"outputs": [latest_output or ""]}
+
