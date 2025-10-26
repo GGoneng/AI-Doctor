@@ -14,15 +14,15 @@ import pickle
 # Internal Variables (do not call externally)
 # ----------------------------------------------------------
 
-# _MODEL_NAME = "snuh/hari-q3"
+_MODEL_NAME = "snuh/hari-q3"
 
-# _llm = VLLM(
-#     model=_MODEL_NAME,
-#     max_new_tokens=1024,
-#     top_k=10,
-#     top_p=0.95,
-#     temperature=0.8,
-# )
+_llm = VLLM(
+    model=_MODEL_NAME,
+    max_new_tokens=1024,
+    top_k=10,
+    top_p=0.95,
+    temperature=0.8,
+)
 
 _prompts = {
 "xray" : PromptTemplate(

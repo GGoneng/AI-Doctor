@@ -3,7 +3,7 @@
 # ----------------------------------------------------------
 
 from Modules.VisionModules import predict_vision
-# from Modules.LLMModules import predict_llm
+from Modules.LLMModules import predict_llm
 from Modules.TypeVariable import *
 
 import torch
@@ -51,6 +51,7 @@ llm_memory = redis.Redis(host=os.getenv("REDIS_HOST", "localhost"), port=6379, d
 async def upload(id: Optional[str] = Form(None),
                 file: Optional[UploadFile] = File(None), 
                 text: Optional[str] = Form(None),
+                type: Optional[str] = Form(None),
                 background_tasks: BackgroundTasks = None) -> Dict[str, Any]:
 
     if id is None:
@@ -88,21 +89,22 @@ async def upload(id: Optional[str] = Form(None),
 
     img = await file.read()
 
-    if (len(img) == 0):
+    if (type == "llm"):
         llm_data["inputs"].append(text)
         background_tasks.add_task(predict_llm, id, llm_memory)
     
-    elif not text:
+    elif (type == "vision"):
         vision_data["inputs"].append(img)
         background_tasks.add_task(predict_vision, id, vision_memory, llm_memory)
+        background_tasks.add_task(predict_llm, id, llm_memory)
     
-    else:
+    elif (type == "both"):
         vision_data["inputs"].append(img)
         llm_data["inputs"].append(text)
 
         # Vision 모델의 추론 우선 (속도, 증상 체크)
         background_tasks.add_task(predict_vision, id, vision_memory, llm_memory)
-        # background_tasks.add_task(predict_llm, id, llm_memory)
+        background_tasks.add_task(predict_llm, id, llm_memory)
 
     vision_memory.set(id, pickle.dumps(vision_data))
     llm_memory.set(id, pickle.dumps(llm_data))

@@ -1,18 +1,27 @@
 import axios from "axios";
 import { useState, useEffect } from "react";
 
-const Prediction = ({ id, setLoading }) => {
+const Prediction = ({ id, setLoading, type }) => {
     const [outputs, setOutputs] = useState(null);
     
     useEffect(() => {
-        if (!id) return;
+        if (!id || !type) return;
 
         let intervalId;
         setLoading(true);
+        
+        const getEndPoint = () => {
+            if (type == "vision") return `http://localhost:8000/visionOutputs/${id}`;
+            if (type == "llm") return `http://localhost:8000/llmOutputs/${id}`;
+            return null;
+        };
 
-        const visionPredict = async () => {
+        const fetchPrediction = async () => {
             
-            await axios.get(`http://localhost:8000/visionOutputs/${id}`)
+            const endpoint = getEndPoint();
+            if (!endpoint) return;
+
+            await axios.get(endpoint)
             
             .then(response => {
                 console.log("prediction 서버 응답 : ", response);
@@ -25,31 +34,39 @@ const Prediction = ({ id, setLoading }) => {
                 }
             })
             .catch(err => {
-                console.error("Vision 예측 실패 : ", err);
+                console.error("예측 실패 : ", err);
                 setLoading(false);
                 clearInterval(intervalId);
             })
         };
-        visionPredict();
-        intervalId = setInterval(visionPredict, 5000);
+        fetchPrediction();
+        intervalId = setInterval(fetchPrediction, 5000);
 
         return () => clearInterval(intervalId);
-    }, [id]);
+    }, [id, type]);
     
     if (!outputs) return null;
 
     return (    
         <div className="relative flex justify-center items-center mt-20 rounded-[28px] shadow-preview w-[550px] h-[550px]">
-            {outputs.map((base64Img, idx) => (
-                <img
-                    key={idx}
-                    src={`data:image/png;base64,${base64Img}`}
-                    alt={`Prediction ${idx}`}
-                    className="max-w-[500px] max-h-[500px] rounded-lg border"
-                />
-            ))}
+            {type === "vision" ? (
+                outputs.map((base64Img, idx) => (
+                    <img
+                        key={idx}
+                        src={`data:image/png;base64,${base64Img}`}
+                        alt={`Prediction ${idx}`}
+                        className="max-w-[500px] max-h-[500px] rounded-lg border"
+                    />
+                ))
+            ) : (
+                <div className="p-5 text-left whitespace-pre-wrap">
+                    {outputs.map((text, idx) => (
+                        <p key={idx}>{text}</p>
+                    ))}
+                </div>
+            )}
         </div>
-    )
+    );
 };
 
 export default Prediction;

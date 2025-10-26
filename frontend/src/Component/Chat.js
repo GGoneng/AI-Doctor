@@ -1,7 +1,7 @@
 import { useRef, useState } from "react";
 import axios from "axios";
 
-const Chat = ({ file, setFile, setLoading, id, setID }) => {
+const Chat = ({ file, setFile, setLoading, id, setID, setType }) => {
     const textareaRef = useRef(null);
     const wrapperRef = useRef(null);
 
@@ -42,31 +42,32 @@ const Chat = ({ file, setFile, setLoading, id, setID }) => {
         const form = new FormData();
         
 
-        if (file) {
-            form.append("file", file);
-        }
+        if (file) form.append("file", file);
+        else form.append("file", new Blob());
+
+        if (text) form.append("text", text);
+
+        if (id) form.append("id", id);
+
+        let currentType = ""
+
+        if (file && !text) currentType = "vision";
+        else if (!file && text.trim().length > 0) currentType = "llm";
+        else if (file && text.trim().length > 0) currentType = "both";
         
-        else {
-            form.append("file", new Blob());
-        }
+        form.append("type", currentType);
 
-        if (text) {
-            form.append("text", text);
-        }
+        setType(currentType);
 
-        if (id) {
-            form.append("id", id);
-        }
         setLoading(true);
+
         await axios.post("http://localhost:8000/upload", form, {
             headers: {"Content-Type": "multipart/form-data"}
         })
         .then(response => {
             console.log("서버 응답 : ", response.data);
 
-            if (response.data.id) {
-                setID(response.data.id)
-            }
+            if (response.data.id) setID(response.data.id);
 
             setText("");
             setFile(null);
@@ -79,7 +80,6 @@ const Chat = ({ file, setFile, setLoading, id, setID }) => {
             setLoading(false);
         }
     )};
-
 
 
     return (
