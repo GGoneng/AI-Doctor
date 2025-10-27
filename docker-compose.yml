@@ -29,7 +29,7 @@ services:
   frontend:
     build:
       context: ./frontend
-      dockerfile: Dockerfile.dev
+      dockerfile: Dockerfile
     image: minha512/ai-doctor_frontend:latest
     container_name: ai-doctor_frontend_service
     restart: unless-stopped
