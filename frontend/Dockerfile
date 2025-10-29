@@ -1,4 +1,4 @@
-FROM node:22-bullseya as builder
+FROM node:22-bullseye as builder
 
 WORKDIR '/web'
 
