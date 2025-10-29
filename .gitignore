@@ -8,9 +8,7 @@
 *.yaml
 
 # 대용량 데이터 (이미지, 오디오, 영상)
-*.jpg
 *.jpeg
-*.gif
 *.bmp
 *.tiff
 *.mp3
