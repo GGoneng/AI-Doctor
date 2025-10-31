@@ -10,11 +10,16 @@ from langchain_community.llms.vllm import VLLM
 import redis
 import pickle
 
+import asyncio
+
 # ----------------------------------------------------------
 # Internal Variables (do not call externally)
 # ----------------------------------------------------------
 
 _MODEL_NAME = "upstage/TinySolar-248m-4k"
+
+
+_llm = None
 
 def load_model():
     return VLLM(
@@ -23,11 +28,19 @@ def load_model():
     top_k=10,
     top_p=0.95,
     temperature=0.8,
+    tensor_parallel_size=1,
     vllm_kwargs={
         "gpu_memory_utilization": 0.7,
         # "quantization": "fp8"
-    }
-)
+        }
+    )
+
+def get_llm():
+    global _llm
+    if _llm is None:
+        _llm = load_model()
+    return _llm
+
 
 _prompts = {
 "xray" : PromptTemplate(
@@ -90,14 +103,12 @@ template="""
 # External Functions (can be called from outside)
 # ----------------------------------------------------------
 
-def predict_llm(id: str, llm_memory: redis.Redis) -> ResponseType:
-    _llm = load_model()
+async def predict_llm(id: str, llm_memory: redis.Redis) -> ResponseType:
+    _llm = get_llm()
 
     llm_data = pickle.loads(llm_memory.get(id))
     question = llm_data["inputs"][-1] if llm_data["inputs"] else None
     symptom = llm_data["symptom"][-1] if llm_data["symptom"] else None
-
-    print(question, symptom)
 
     if symptom:
         prompt = _prompts["xray"]
@@ -111,9 +122,12 @@ def predict_llm(id: str, llm_memory: redis.Redis) -> ResponseType:
         return {"id": id, "llm_result": "Text Data가 없습니다."}
     
     chain = prompt | _llm
-    result = chain.invoke(input_data)
+
+    result = await chain.ainvoke(input_data)
 
     llm_data["outputs"].append(result)
     llm_memory.set(id, pickle.dumps(llm_data))
+
+    print(result)
 
     return {"id": id, "llm_result": "LLM 모델 추론 성공!"}
