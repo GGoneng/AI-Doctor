@@ -1,6 +1,7 @@
 # ----------------------------------------------------------
 # Modules
 # ----------------------------------------------------------
+
 from Modules.TypeVariable import *
 
 from langchain_core.prompts.prompt import PromptTemplate
@@ -9,22 +10,23 @@ from langchain_community.llms.vllm import VLLM
 import redis
 import pickle
 
-
 # ----------------------------------------------------------
 # Internal Variables (do not call externally)
 # ----------------------------------------------------------
 
 _MODEL_NAME = "upstage/TinySolar-248m-4k"
 
-_llm = VLLM(
+def load_model():
+    return VLLM(
     model=_MODEL_NAME,
     max_new_tokens=1024,
     top_k=10,
     top_p=0.95,
     temperature=0.8,
-    # vllm_kwargs={
-    #     "quantization": "fp8"
-    # }
+    vllm_kwargs={
+        "gpu_memory_utilization": 0.7,
+        # "quantization": "fp8"
+    }
 )
 
 _prompts = {
@@ -89,6 +91,8 @@ template="""
 # ----------------------------------------------------------
 
 def predict_llm(id: str, llm_memory: redis.Redis) -> ResponseType:
+    _llm = load_model()
+
     llm_data = pickle.loads(llm_memory.get(id))
     question = llm_data["inputs"][-1] if llm_data["inputs"] else None
     symptom = llm_data["symptom"][-1] if llm_data["symptom"] else None
