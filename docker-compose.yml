@@ -16,15 +16,15 @@ services:
       - redis
     environment:
       - REDIS_HOST=redis
-    #   - NVIDIA_VISIBLE_DEVICES=0
-    #   - NVIDIA_DRIVER_CAPABILITIES=compute,utility
-    # deploy:
-    #   resources:
-    #     reservations:
-    #       devices:
-    #         - driver: nvidia
-    #           count: all
-    #           capabilities: [gpu]
+      - NVIDIA_VISIBLE_DEVICES=all
+      - NVIDIA_DRIVER_CAPABILITIES=compute,utility
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: all
+              capabilities: [gpu]
 
   frontend:
     build:
