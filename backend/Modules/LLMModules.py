@@ -14,7 +14,7 @@ import pickle
 # Internal Variables (do not call externally)
 # ----------------------------------------------------------
 
-_MODEL_NAME = "snuh/hari-q3"
+_MODEL_NAME = "upstage/TinySolar-248m-4k"
 
 _llm = VLLM(
     model=_MODEL_NAME,
@@ -22,9 +22,9 @@ _llm = VLLM(
     top_k=10,
     top_p=0.95,
     temperature=0.8,
-    vllm_kwargs={
-        "quantization": "fp8"
-    }
+    # vllm_kwargs={
+    #     "quantization": "fp8"
+    # }
 )
 
 _prompts = {

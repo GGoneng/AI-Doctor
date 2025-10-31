@@ -11,8 +11,8 @@ const Prediction = ({ id, setLoading, type }) => {
         setLoading(true);
         
         const getEndPoint = () => {
-            if (type == "vision") return `http://localhost:8000/visionOutputs/${id}`;
-            if (type == "llm") return `http://localhost:8000/llmOutputs/${id}`;
+            if (type === "vision") return `http://localhost:8000/visionOutputs/${id}`;
+            if (type === "llm") return `http://localhost:8000/llmOutputs/${id}`;
             return null;
         };
 
