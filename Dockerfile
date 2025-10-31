@@ -22,10 +22,10 @@ ENV PATH="/usr/local/bin:$PATH"
 
 VOLUME /var/lib/docker
 
-WORKDIR /workspace
+WORKDIR /app
 
-RUN git clone https://github.com/GGoneng/AI-Doctor.git /workspace
+RUN git clone https://github.com/GGoneng/AI-Doctor.git /app
 
-CMD ["dockerd", "-D"]
+CMD ["sleep", "infinity"]
 
 

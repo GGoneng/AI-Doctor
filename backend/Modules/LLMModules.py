@@ -22,6 +22,9 @@ _llm = VLLM(
     top_k=10,
     top_p=0.95,
     temperature=0.8,
+    vllm_kwargs={
+        "quantization": "fp8"
+    }
 )
 
 _prompts = {
