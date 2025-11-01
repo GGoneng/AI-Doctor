@@ -24,7 +24,7 @@ const App = () => {
       <main className="flex flex-col items-center">
         <div>
           {loading && <Loading />}
-          {id && <Prediction id={id} setLoading={setLoading} type={type} />}
+          {id && <Prediction id={id} setLoading={setLoading} />}
           {!id && !loading && (
             file ? <Preview file={file} setFile={setFile} /> : <Insert setFile={setFile} />
           )}
