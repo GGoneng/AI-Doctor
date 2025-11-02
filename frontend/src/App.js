@@ -6,12 +6,12 @@ import Chat from "./Component/Chat";
 import Preview from "./Component/Preview";
 import Loading from "./Component/Loading";
 import Prediction from "./Component/Prediction";
+import Reupload from "./Component/Reupload";
 
 const App = () => {
   const [file, setFile] = useState(null);
   const [loading, setLoading] = useState(false); 
   const [id, setID] = useState(null);
-  const [type, setType] = useState(null);
 
   return (
     <div className="min-h-full h-auto">
@@ -29,10 +29,20 @@ const App = () => {
             file ? <Preview file={file} setFile={setFile} /> : <Insert setFile={setFile} />
           )}
         </div>
-        <div className="flex flex-col">
-          <Chat file={file} setFile={setFile} setLoading={setLoading} 
-          id={id} setID={setID} setType={setType}/>
-        </div>
+
+        {!id && (
+          <div className="flex flex-col">
+            <div>
+              <Chat file={file} setFile={setFile} setLoading={setLoading} 
+              id={id} setID={setID} setType={setType}/>
+            </div>
+          </div>
+        )}
+        {id && (
+          <Reupload setID={setID}/>
+        )
+
+        }
       </main>
     </div>
   );

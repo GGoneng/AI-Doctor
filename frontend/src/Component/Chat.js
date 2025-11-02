@@ -83,7 +83,7 @@ const Chat = ({ file, setFile, setLoading, id, setID, setType }) => {
 
 
     return (
-        <div ref={wrapperRef} className="flex fixed items-center rounded-[28px] h-auto w-[600px] bottom-[0px] mb-[30px] shadow-chat left-1/2 -translate-x-1/2">
+        <div ref={wrapperRef} className="flex fixed items-center rounded-[28px] h-auto w-[600px] bottom-[0px] mb-[30px] shadow-chat left-1/2 -translate-x-1/2 bg-white">
             <textarea ref={textareaRef} onInput={handleScroll} value={text} onChange={handleTextselect} className="h-[40px] w-[87%] border-none outline-none text-[15px] box-border pt-2 pl-1 mt-[1.7%] ml-5 bg-transparent leading-none overflow-hidden resize-none"
                                              placeholder="궁금하신 증상을 말씀해주세요"></textarea>
             <button disabled={isDisable} onClick={() => uploadBackend(id, file, text)} className={`fixed right-2 bottom-1.5 flex items-center justify-center h-9 w-9 rounded-full text-white 
