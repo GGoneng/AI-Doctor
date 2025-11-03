@@ -3,7 +3,16 @@ import { useState, useEffect } from "react";
 
 const Prediction = ({ id, setLoading }) => {
     const [outputs, setOutputs] = useState({ vision: [], llm: [] });
+    const [animatedText, setAnimatedText] = useState("");
     
+    const animateText = async (fullText) => {
+        setAnimatedText("");
+        for (let i = 0; i < fullText.length; i++) {
+            setAnimatedText((prev) => prev + fullText[i]);
+            await new Promise((resolve) => setTimeout(resolve, 20));
+        }
+    };
+
     useEffect(() => {
         if (!id) return;
 
@@ -25,6 +34,11 @@ const Prediction = ({ id, setLoading }) => {
                 setOutputs({ vision: visionOut, llm: llmOut });
                 setLoading(false);
                 clearInterval(intervalId);
+
+                if (llmOut.length > 0) {
+                    animateText(llmOut.join("\n\n"));
+                };
+
             } catch (err) {
                 console.error("예측 실패 : ", err);
                 setLoading(false);
@@ -38,8 +52,8 @@ const Prediction = ({ id, setLoading }) => {
 
         return () => clearInterval(intervalId);
     }, [id, setLoading]);
-    
-    if (!outputs.vision.length && !outputs.llm.length) return null;
+
+    if (!outputs.vision.length && !outputs.llm.length && !animatedText) return null;
 
     return (    
         <div className="relative flex flex-col justify-center items-center mt-20 rounded-[28px] shadow-preview w-[550px] min-h-[550px] p-4">
@@ -56,11 +70,9 @@ const Prediction = ({ id, setLoading }) => {
                 </div>
             )}
 
-            {outputs.llm.length > 0 && (
-                <div className="p-5 text-left whitespace-pre-wrap w-full border-t border-gray-300">
-                    {outputs.llm.map((text, idx) => (
-                        <p key={idx}>{text}</p>
-                    ))}
+            {(animatedText || outputs.llm.length > 0) && (
+                <div className="p-5 text-left whitespace-pre-wrap w-full border-t border-gray-300 overflow-y-auto">
+                    <p>{animatedText}</p>
                 </div>
             )}
         </div>

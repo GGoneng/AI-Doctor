@@ -34,7 +34,7 @@ const App = () => {
           <div className="flex flex-col">
             <div>
               <Chat file={file} setFile={setFile} setLoading={setLoading} 
-              id={id} setID={setID} setType={setType}/>
+              id={id} setID={setID}/>
             </div>
           </div>
         )}

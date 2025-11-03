@@ -49,16 +49,6 @@ const Chat = ({ file, setFile, setLoading, id, setID, setType }) => {
 
         if (id) form.append("id", id);
 
-        let currentType = ""
-
-        if (file && !text) currentType = "vision";
-        else if (!file && text.trim().length > 0) currentType = "llm";
-        else if (file && text.trim().length > 0) currentType = "both";
-        
-        form.append("type", currentType);
-
-        setType(currentType);
-
         setLoading(true);
 
         await axios.post("http://localhost:8000/upload", form, {
