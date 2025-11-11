@@ -2,8 +2,7 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 
-from torchmetrics.segmentation import DiceScore
-from torch.utils.data import Dataset, DataLoader
+from torch.utils.data import Dataset
 
 from PIL import Image, ImageDraw
 
@@ -137,7 +136,7 @@ def dice_coefficient(pred, target, smooth=1):
     return torch.mean(torch.stack(dice_scores)).item()
 
 
-def multiclass_dice_loss(pred, target, smooth=1):
+def multiclass_dice_loss(pred, target):
     num_classes = pred.shape[1]
 
     dice_coef = dice_coefficient(pred, target)

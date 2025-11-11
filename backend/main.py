@@ -31,6 +31,7 @@ VISION_WEIGHTS_PATH = os.path.join(BASE_PATH, "Weights", "vision_weights.pth")
 
 app = FastAPI()
 
+# React 접근 허용
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["http://localhost:3000"],
@@ -39,6 +40,7 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+# Redis DB
 vision_memory = redis.Redis(host=os.getenv("REDIS_HOST", "localhost"), port=6379, db=0)
 llm_memory = redis.Redis(host=os.getenv("REDIS_HOST", "localhost"), port=6379, db=1)
 
